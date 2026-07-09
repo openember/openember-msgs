@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package openember.msgs.device.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/device/v1;devicev1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.device.v1";
+
+enum DeviceCategory {
+  DEVICE_CATEGORY_UNSPECIFIED = 0;
+  DEVICE_CATEGORY_GPIO = 1;
+  DEVICE_CATEGORY_PWM = 2;
+  DEVICE_CATEGORY_ONEWIRE = 3;
+  DEVICE_CATEGORY_SERIAL_PORT = 4;
+  DEVICE_CATEGORY_RS485 = 5;
+  DEVICE_CATEGORY_SBUS_READER = 6;
+  DEVICE_CATEGORY_I2C_BUS = 7;
+  DEVICE_CATEGORY_SPI_BUS = 8;
+  DEVICE_CATEGORY_CAN_BUS = 9;
+  DEVICE_CATEGORY_SENSOR = 10;
+  DEVICE_CATEGORY_ACTUATOR = 11;
+  DEVICE_CATEGORY_CAMERA = 12;
+  DEVICE_CATEGORY_STORAGE = 13;
+  DEVICE_CATEGORY_NETWORK = 14;
+}
+
+enum DeviceAvailability {
+  DEVICE_AVAILABILITY_UNSPECIFIED = 0;
+  DEVICE_AVAILABILITY_ONLINE = 1;
+  DEVICE_AVAILABILITY_OFFLINE = 2;
+  DEVICE_AVAILABILITY_DEGRADED = 3;
+  DEVICE_AVAILABILITY_ERROR = 4;
+}
+
+message DeviceInfo {
+  openember.msgs.common.v1.Header header = 1;
+  string device_id = 2;
+  string name = 3;
+  DeviceCategory category = 4;
+  string driver = 5;
+  string path = 6;
+  string bus = 7;
+  string parent_id = 8;
+  repeated string capabilities = 9;
+  repeated openember.msgs.common.v1.KeyValue labels = 10;
+}
+
+message DeviceState {
+  openember.msgs.common.v1.Header header = 1;
+  string device_id = 2;
+  DeviceAvailability availability = 3;
+  openember.msgs.common.v1.HealthState health = 4;
+  string message = 5;
+  repeated openember.msgs.common.v1.Metric metrics = 6;
+  repeated openember.msgs.common.v1.KeyValue properties = 7;
+}
+
+message DeviceQuery {
+  openember.msgs.common.v1.Header header = 1;
+  string device_id = 2;
+  DeviceCategory category = 3;
+  bool include_state = 4;
+}
+
+message DeviceQueryResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  repeated DeviceInfo devices = 3;
+  repeated DeviceState states = 4;
+}

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package openember.msgs.parameter.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/parameter/v1;parameterv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.parameter.v1";
+
+enum ParameterType {
+  PARAMETER_TYPE_UNSPECIFIED = 0;
+  PARAMETER_TYPE_BOOL = 1;
+  PARAMETER_TYPE_INT64 = 2;
+  PARAMETER_TYPE_UINT64 = 3;
+  PARAMETER_TYPE_DOUBLE = 4;
+  PARAMETER_TYPE_STRING = 5;
+  PARAMETER_TYPE_BYTES = 6;
+}
+
+message ParameterValue {
+  ParameterType type = 1;
+  oneof value {
+    bool bool_value = 2;
+    int64 int64_value = 3;
+    uint64 uint64_value = 4;
+    double double_value = 5;
+    string string_value = 6;
+    bytes bytes_value = 7;
+  }
+}
+
+message NumericRange {
+  double from_value = 1;
+  double to_value = 2;
+  double step = 3;
+}
+
+message ParameterDescriptor {
+  string name = 1;
+  ParameterType type = 2;
+  string description = 3;
+  bool read_only = 4;
+  bool dynamic_typing = 5;
+  ParameterValue default_value = 6;
+  NumericRange range = 7;
+  repeated string allowed_values = 8;
+  repeated openember.msgs.common.v1.KeyValue labels = 9;
+}
+
+message Parameter {
+  ParameterDescriptor definition = 1;
+  ParameterValue value = 2;
+}
+
+message GetParameterRequest {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  repeated string names = 3;
+}
+
+message GetParameterResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  repeated Parameter parameters = 3;
+}
+
+message SetParameterRequest {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  repeated Parameter parameters = 3;
+}
+
+message SetParameterResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  repeated Parameter parameters = 3;
+}
+
+message ParameterEvent {
+  enum EventType {
+    EVENT_TYPE_UNSPECIFIED = 0;
+    EVENT_TYPE_DECLARED = 1;
+    EVENT_TYPE_CHANGED = 2;
+    EVENT_TYPE_DELETED = 3;
+  }
+
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  EventType event_type = 3;
+  repeated Parameter parameters = 4;
+  repeated string deleted_names = 5;
+}

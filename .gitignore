@@ -1,0 +1,10 @@
+build/
+cmake-build-*/
+generated/
+gen/
+*.pb.cc
+*.pb.h
+*.pb.c
+*.pb.go
+*.pyc
+__pycache__/

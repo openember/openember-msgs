@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package openember.msgs.log.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/log/v1;logv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.log.v1";
+
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_TRACE = 1;
+  LOG_LEVEL_DEBUG = 2;
+  LOG_LEVEL_INFO = 3;
+  LOG_LEVEL_WARNING = 4;
+  LOG_LEVEL_ERROR = 5;
+  LOG_LEVEL_FATAL = 6;
+}
+
+message LogRecord {
+  openember.msgs.common.v1.Header header = 1;
+  string logger_name = 2;
+  string node_name = 3;
+  LogLevel level = 4;
+  string message = 5;
+  string file = 6;
+  uint32 line = 7;
+  string function_name = 8;
+  repeated openember.msgs.common.v1.KeyValue fields = 9;
+}
+
+message LogBatch {
+  openember.msgs.common.v1.Header header = 1;
+  repeated LogRecord records = 2;
+}

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package openember.msgs.lifecycle.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/lifecycle/v1;lifecyclev1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.lifecycle.v1";
+
+enum LifecycleState {
+  LIFECYCLE_STATE_UNSPECIFIED = 0;
+  LIFECYCLE_STATE_UNCONFIGURED = 1;
+  LIFECYCLE_STATE_INACTIVE = 2;
+  LIFECYCLE_STATE_ACTIVE = 3;
+  LIFECYCLE_STATE_FINALIZED = 4;
+  LIFECYCLE_STATE_ERROR = 5;
+}
+
+enum LifecycleTransition {
+  LIFECYCLE_TRANSITION_UNSPECIFIED = 0;
+  LIFECYCLE_TRANSITION_CONFIGURE = 1;
+  LIFECYCLE_TRANSITION_ACTIVATE = 2;
+  LIFECYCLE_TRANSITION_DEACTIVATE = 3;
+  LIFECYCLE_TRANSITION_CLEANUP = 4;
+  LIFECYCLE_TRANSITION_SHUTDOWN = 5;
+  LIFECYCLE_TRANSITION_RESET_ERROR = 6;
+}
+
+message LifecycleCommand {
+  openember.msgs.common.v1.Header header = 1;
+  string target_node = 2;
+  string target_instance = 3;
+  LifecycleTransition transition = 4;
+  string reason = 5;
+  uint64 timeout_ms = 6;
+}
+
+message LifecycleCommandResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  string target_node = 3;
+  string target_instance = 4;
+  LifecycleState state = 5;
+}
+
+message LifecycleEvent {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  string instance_id = 3;
+  LifecycleState previous_state = 4;
+  LifecycleState current_state = 5;
+  LifecycleTransition transition = 6;
+  openember.msgs.common.v1.Status status = 7;
+  string reason = 8;
+}

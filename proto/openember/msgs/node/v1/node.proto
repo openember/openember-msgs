@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package openember.msgs.node.v1;
+
+import "openember/msgs/common/v1/common.proto";
+import "openember/msgs/lifecycle/v1/lifecycle.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/node/v1;nodev1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.node.v1";
+
+enum NodeKind {
+  NODE_KIND_UNSPECIFIED = 0;
+  NODE_KIND_SYSTEM = 1;
+  NODE_KIND_SERVICE = 2;
+  NODE_KIND_TOOL = 3;
+  NODE_KIND_APPLICATION = 4;
+  NODE_KIND_DEVICE = 5;
+  NODE_KIND_AGENT = 6;
+}
+
+enum EndpointDirection {
+  ENDPOINT_DIRECTION_UNSPECIFIED = 0;
+  ENDPOINT_DIRECTION_PUBLISHER = 1;
+  ENDPOINT_DIRECTION_SUBSCRIBER = 2;
+  ENDPOINT_DIRECTION_SERVICE_SERVER = 3;
+  ENDPOINT_DIRECTION_SERVICE_CLIENT = 4;
+}
+
+message TopicEndpoint {
+  string name = 1;
+  string type = 2;
+  EndpointDirection direction = 3;
+  openember.msgs.common.v1.QosProfile qos = 4;
+  repeated openember.msgs.common.v1.KeyValue labels = 5;
+}
+
+message ServiceEndpoint {
+  string name = 1;
+  string request_type = 2;
+  string response_type = 3;
+  EndpointDirection direction = 4;
+  openember.msgs.common.v1.QosProfile qos = 5;
+  repeated openember.msgs.common.v1.KeyValue labels = 6;
+}
+
+message NodeInfo {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  string namespace_name = 3;
+  string instance_id = 4;
+  string process_name = 5;
+  uint32 process_id = 6;
+  NodeKind kind = 7;
+  string version = 8;
+  uint64 start_time_unix_ns = 9;
+  repeated TopicEndpoint topics = 10;
+  repeated ServiceEndpoint services = 11;
+  repeated openember.msgs.common.v1.KeyValue labels = 12;
+  repeated string capabilities = 13;
+}
+
+message NodeHeartbeat {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  string instance_id = 3;
+  openember.msgs.lifecycle.v1.LifecycleState lifecycle_state = 4;
+  openember.msgs.common.v1.HealthState health = 5;
+  uint64 uptime_ms = 6;
+  uint32 error_count = 7;
+  string status_message = 8;
+  repeated openember.msgs.common.v1.Metric metrics = 9;
+}
+
+message NodeQuery {
+  openember.msgs.common.v1.Header header = 1;
+  string node_name = 2;
+  string namespace_name = 3;
+  bool include_endpoints = 4;
+  bool include_inactive = 5;
+}
+
+message NodeQueryResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  repeated NodeInfo nodes = 3;
+}
+
+message NodeRegistrySnapshot {
+  openember.msgs.common.v1.Header header = 1;
+  repeated NodeInfo nodes = 2;
+}

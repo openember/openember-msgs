@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package openember.msgs.runtime.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/runtime/v1;runtimev1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.runtime.v1";
+
+enum ProcessState {
+  PROCESS_STATE_UNSPECIFIED = 0;
+  PROCESS_STATE_STARTING = 1;
+  PROCESS_STATE_RUNNING = 2;
+  PROCESS_STATE_STOPPING = 3;
+  PROCESS_STATE_STOPPED = 4;
+  PROCESS_STATE_EXITED = 5;
+  PROCESS_STATE_FAILED = 6;
+}
+
+message ProcessSpec {
+  string name = 1;
+  string executable = 2;
+  repeated string args = 3;
+  repeated openember.msgs.common.v1.KeyValue env = 4;
+  string working_directory = 5;
+  bool restart_on_failure = 6;
+  uint32 restart_limit = 7;
+}
+
+message ProcessInfo {
+  string name = 1;
+  uint32 process_id = 2;
+  ProcessState state = 3;
+  int32 exit_code = 4;
+  uint64 start_time_unix_ns = 5;
+  uint64 stop_time_unix_ns = 6;
+  string message = 7;
+}
+
+message StartProcessRequest {
+  openember.msgs.common.v1.Header header = 1;
+  ProcessSpec process = 2;
+}
+
+message StartProcessResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  ProcessInfo process = 3;
+}
+
+message StopProcessRequest {
+  openember.msgs.common.v1.Header header = 1;
+  string name = 2;
+  uint32 process_id = 3;
+  uint64 timeout_ms = 4;
+}
+
+message StopProcessResponse {
+  openember.msgs.common.v1.Header header = 1;
+  openember.msgs.common.v1.Status status = 2;
+  ProcessInfo process = 3;
+}
+
+message ProcessEvent {
+  openember.msgs.common.v1.Header header = 1;
+  ProcessInfo process = 2;
+}
