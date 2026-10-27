@@ -1,21 +1,18 @@
-# openember-msgs
+# OpenEmber 消息协议
 
-Language-neutral protocol definitions shared by OpenEmber and emberlite.
+`openember-msgs` 是 OpenEmber 与 EmberLite 共用的语言无关消息协议仓库。
 
-This repository contains the stable wire contract for core runtime
-communication. OpenEmber can generate C++ protobuf bindings from these files.
-emberlite can generate pure C bindings with Nanopb from the same `.proto`
-source.
+本仓库只定义稳定的运行时通信契约，不包含具体运行时实现。OpenEmber 可以基于这些 `.proto` 文件生成 C++ Protobuf 绑定；EmberLite 可以使用同一份 `.proto` 与 Nanopb 生成纯 C 绑定。
 
-## Design Goals
+## 设计目标
 
-- Keep one clean protocol line for OpenEmber and emberlite.
-- Use Protobuf as the schema and wire format.
-- Keep message definitions friendly to Nanopb and constrained devices.
-- Let Zenoh keys handle routing, while Protobuf messages handle structure.
-- Version packages explicitly with `v1`, `v2`, and so on.
+- OpenEmber 与 EmberLite 共用一条消息协议主线。
+- 使用 Protobuf 作为 schema 与 wire format。
+- 保持协议对 Nanopb 和受限设备友好。
+- 由 Zenoh key 负责路由，由 Protobuf message 负责结构化数据。
+- 通过 `v1`、`v2` 等包路径显式管理协议版本。
 
-## Packages
+## 包结构
 
 ```text
 proto/openember/msgs/common/v1
@@ -26,29 +23,30 @@ proto/openember/msgs/parameter/v1
 proto/openember/msgs/log/v1
 proto/openember/msgs/device/v1
 proto/openember/msgs/runtime/v1
+proto/openember/msgs/sensor/v1
+proto/openember/msgs/actuator/v1
+proto/openember/msgs/power/v1
+proto/openember/msgs/geometry/v1
 ```
 
-`common/v1` defines shared types such as `Header`, `Status`, `QosProfile`,
-`HealthState`, `KeyValue`, and `Metric`.
+说明：
 
-`node/v1` defines node discovery and introspection messages:
-`NodeInfo`, `NodeHeartbeat`, `NodeQuery`, and `NodeRegistrySnapshot`.
+- `common/v1`：通用类型，例如 `Header`、`Status`、`QosProfile`、`HealthState`、`KeyValue`、`Metric`。
+- `node/v1`：节点发现与自省，例如 `NodeInfo`、`NodeHeartbeat`、`NodeQuery`、`NodeRegistrySnapshot`。
+- `lifecycle/v1`：节点生命周期状态、状态切换命令与响应。
+- `diagnostics/v1`：健康状态与诊断信息。
+- `parameter/v1`：运行时参数读取、设置与事件通知。
+- `log/v1`：结构化日志记录。
+- `device/v1`：面向 LPIO 的设备信息与设备状态。
+- `runtime/v1`：面向 launch manager 的进程启动、停止与事件消息。
+- `sensor/v1`：IMU、温度、GNSS 等传感器样本与状态。
+- `actuator/v1`：关节控制器命令、状态与执行器健康状态。
+- `power/v1`：电池、电源状态与电源控制命令。
+- `geometry/v1`：平面位姿与速度，例如 `Pose2D`、`Twist2D`（宿主机仿真 / teleop 示例）。
 
-`lifecycle/v1` defines lifecycle state transitions and command responses.
+## Zenoh Key 约定
 
-`diagnostics/v1` defines health and diagnostic status reports.
-
-`parameter/v1` defines runtime parameter get/set/event messages.
-
-`log/v1` defines structured log records.
-
-`device/v1` defines LPIO-oriented device inventory and state messages.
-
-`runtime/v1` defines process start/stop/event messages for launch managers.
-
-## Zenoh Key Convention
-
-Zenoh keys should remain stable and human-readable. Suggested core keys:
+Zenoh key 应保持稳定、可读、可调试。建议核心 key 如下：
 
 ```text
 openember/<robot_id>/<namespace>/nodes/<node>/info
@@ -62,36 +60,33 @@ openember/<robot_id>/<namespace>/devices/<device>
 openember/<robot_id>/<namespace>/runtime/processes/<process>
 ```
 
-The Zenoh key selects the stream or service. The Protobuf message declares the
-payload structure. Avoid a mandatory global envelope unless a future bridge or
-recording format truly needs one.
+Zenoh key 用于选择数据流或服务；Protobuf message 用于描述 payload 结构。除非未来录包、桥接或跨域转发确实需要，否则第一版不强制引入全局 envelope。
 
-## Building C++ Bindings
+## 生成 C++ 绑定
 
-The default CMake configuration only exposes the `.proto` files. Enable
-generated C++ bindings when needed:
+默认 CMake 配置只暴露 `.proto` 文件。需要生成并编译 C++ 绑定时启用：
 
 ```bash
 cmake -S . -B build -DOPENEMBER_MSGS_BUILD_CPP=ON
 cmake --build build
 ```
 
-Consumers can also run `protoc` directly:
+也可以直接调用 `protoc`：
 
 ```bash
 protoc -I proto --cpp_out generated/cpp \
   proto/openember/msgs/common/v1/common.proto
 ```
 
-## Generating C Bindings With Nanopb
+## 使用 Nanopb 生成 C 绑定
 
-Nanopb options live in:
+Nanopb 约束文件位于：
 
 ```text
 nanopb/openember_msgs.options
 ```
 
-Use the same `.proto` files with Nanopb:
+使用同一份 `.proto` 生成纯 C 代码：
 
 ```bash
 python3 generator/nanopb_generator.py \
@@ -100,21 +95,19 @@ python3 generator/nanopb_generator.py \
   proto/openember/msgs/common/v1/common.proto
 ```
 
-The options file caps string lengths and repeated field counts so generated C
-types can be allocated statically by emberlite.
+`openember_msgs.options` 会限制字符串长度和 repeated 字段数量，使 EmberLite 可以使用静态内存承载消息结构。
 
-## Compatibility Rules
+其中小型字段优先使用 `max_size` / `max_count`，便于 C 端直接读写；节点列表、设备列表、诊断数组、日志批次、参数批量响应、节点 endpoints 等可能变大的集合使用 `type:FT_CALLBACK`，避免在受限设备上为一次消息预分配过大的结构体。
 
-- Do not rename packages or existing fields.
-- Do not reuse field numbers.
-- Reserve removed field numbers and names in future edits.
-- Add fields only with new numbers.
-- Put breaking changes in a new package version, for example `node/v2`.
-- Avoid `Any`, `map`, unbounded repeated fields, and deep nesting in core
-  messages.
+## 兼容性规则
 
-## Current Scope
+- 不重命名已有 package、message、enum、field。
+- 不复用已使用过的 field number。
+- 删除字段时在后续修改中使用 `reserved` 保留字段号和字段名。
+- 新增字段只能使用新的 field number。
+- 破坏性变更放入新的包版本，例如 `node/v2`。
+- 核心消息中避免使用 `Any`、`map`、无界 repeated 字段和过深嵌套。
 
-This repository intentionally defines core runtime messages only. Robot-specific
-sensor, actuator, vision, navigation, or agent payloads should be added later as
-separate packages once the runtime protocol is stable.
+## 当前范围
+
+本仓库当前定义核心运行时消息，以及 Hardware Interface 第一版需要的传感器、执行器和电源基础消息。Camera、LiDAR、Radar、Audio、导航、视觉或 Agent payload 等高带宽/高层业务消息，应在运行时协议稳定后再作为独立 package 增加。

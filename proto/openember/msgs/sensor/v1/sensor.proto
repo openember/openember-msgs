@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package openember.msgs.sensor.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/sensor/v1;sensorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.sensor.v1";
+
+message Vector3 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+enum SensorType {
+  SENSOR_TYPE_UNSPECIFIED = 0;
+  SENSOR_TYPE_IMU = 1;
+  SENSOR_TYPE_TEMPERATURE = 2;
+  SENSOR_TYPE_GNSS = 3;
+}
+
+enum SensorAvailability {
+  SENSOR_AVAILABILITY_UNSPECIFIED = 0;
+  SENSOR_AVAILABILITY_OFFLINE = 1;
+  SENSOR_AVAILABILITY_ONLINE = 2;
+  SENSOR_AVAILABILITY_DEGRADED = 3;
+  SENSOR_AVAILABILITY_ERROR = 4;
+}
+
+enum GnssFixType {
+  GNSS_FIX_TYPE_UNSPECIFIED = 0;
+  GNSS_FIX_TYPE_NO_FIX = 1;
+  GNSS_FIX_TYPE_FIX_2D = 2;
+  GNSS_FIX_TYPE_FIX_3D = 3;
+  GNSS_FIX_TYPE_RTK_FLOAT = 4;
+  GNSS_FIX_TYPE_RTK_FIXED = 5;
+}
+
+message ImuSample {
+  openember.msgs.common.v1.Header header = 1;
+  string sensor_id = 2;
+  string frame_id = 3;
+  uint64 sample_time_monotonic_ns = 4;
+  uint64 sequence = 5;
+  Vector3 acceleration_mps2 = 6;
+  Vector3 angular_velocity_radps = 7;
+  Vector3 magnetic_field_tesla = 8;
+  double temperature_celsius = 9;
+}
+
+message TemperatureSample {
+  openember.msgs.common.v1.Header header = 1;
+  string sensor_id = 2;
+  string frame_id = 3;
+  uint64 sample_time_monotonic_ns = 4;
+  uint64 sequence = 5;
+  double temperature_celsius = 6;
+}
+
+message GnssFix {
+  openember.msgs.common.v1.Header header = 1;
+  string sensor_id = 2;
+  string frame_id = 3;
+  uint64 sample_time_monotonic_ns = 4;
+  uint64 sequence = 5;
+  GnssFixType fix_type = 6;
+  double latitude_deg = 7;
+  double longitude_deg = 8;
+  double altitude_m = 9;
+  Vector3 velocity_enu_mps = 10;
+  uint32 satellites_used = 11;
+  double horizontal_accuracy_m = 12;
+  double vertical_accuracy_m = 13;
+}
+
+message SensorStatus {
+  openember.msgs.common.v1.Header header = 1;
+  string sensor_id = 2;
+  SensorType type = 3;
+  SensorAvailability availability = 4;
+  openember.msgs.common.v1.HealthState health = 5;
+  string message = 6;
+  repeated openember.msgs.common.v1.Metric metrics = 7;
+}

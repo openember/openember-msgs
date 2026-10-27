@@ -34,8 +34,8 @@ openember.msgs.node.v1.NodeInfo.namespace_name max_size:64
 openember.msgs.node.v1.NodeInfo.instance_id max_size:64
 openember.msgs.node.v1.NodeInfo.process_name max_size:64
 openember.msgs.node.v1.NodeInfo.version max_size:32
-openember.msgs.node.v1.NodeInfo.topics max_count:16
-openember.msgs.node.v1.NodeInfo.services max_count:16
+openember.msgs.node.v1.NodeInfo.topics type:FT_CALLBACK
+openember.msgs.node.v1.NodeInfo.services type:FT_CALLBACK
 openember.msgs.node.v1.NodeInfo.labels max_count:16
 openember.msgs.node.v1.NodeInfo.capabilities max_count:16
 openember.msgs.node.v1.NodeInfo.capabilities max_size:64
@@ -45,8 +45,8 @@ openember.msgs.node.v1.NodeHeartbeat.status_message max_size:128
 openember.msgs.node.v1.NodeHeartbeat.metrics max_count:16
 openember.msgs.node.v1.NodeQuery.node_name max_size:64
 openember.msgs.node.v1.NodeQuery.namespace_name max_size:64
-openember.msgs.node.v1.NodeQueryResponse.nodes max_count:32
-openember.msgs.node.v1.NodeRegistrySnapshot.nodes max_count:32
+openember.msgs.node.v1.NodeQueryResponse.nodes type:FT_CALLBACK
+openember.msgs.node.v1.NodeRegistrySnapshot.nodes type:FT_CALLBACK
 
 openember.msgs.diagnostics.v1.DiagnosticStatus.name max_size:64
 openember.msgs.diagnostics.v1.DiagnosticStatus.node_name max_size:64
@@ -54,7 +54,7 @@ openember.msgs.diagnostics.v1.DiagnosticStatus.hardware_id max_size:64
 openember.msgs.diagnostics.v1.DiagnosticStatus.message max_size:160
 openember.msgs.diagnostics.v1.DiagnosticStatus.values max_count:16
 openember.msgs.diagnostics.v1.DiagnosticStatus.metrics max_count:16
-openember.msgs.diagnostics.v1.DiagnosticArray.status max_count:16
+openember.msgs.diagnostics.v1.DiagnosticArray.status type:FT_CALLBACK
 
 openember.msgs.parameter.v1.ParameterValue.string_value max_size:128
 openember.msgs.parameter.v1.ParameterValue.bytes_value max_size:128
@@ -66,12 +66,12 @@ openember.msgs.parameter.v1.ParameterDescriptor.labels max_count:8
 openember.msgs.parameter.v1.GetParameterRequest.node_name max_size:64
 openember.msgs.parameter.v1.GetParameterRequest.names max_count:16
 openember.msgs.parameter.v1.GetParameterRequest.names max_size:64
-openember.msgs.parameter.v1.GetParameterResponse.parameters max_count:16
+openember.msgs.parameter.v1.GetParameterResponse.parameters type:FT_CALLBACK
 openember.msgs.parameter.v1.SetParameterRequest.node_name max_size:64
-openember.msgs.parameter.v1.SetParameterRequest.parameters max_count:16
-openember.msgs.parameter.v1.SetParameterResponse.parameters max_count:16
+openember.msgs.parameter.v1.SetParameterRequest.parameters type:FT_CALLBACK
+openember.msgs.parameter.v1.SetParameterResponse.parameters type:FT_CALLBACK
 openember.msgs.parameter.v1.ParameterEvent.node_name max_size:64
-openember.msgs.parameter.v1.ParameterEvent.parameters max_count:16
+openember.msgs.parameter.v1.ParameterEvent.parameters type:FT_CALLBACK
 openember.msgs.parameter.v1.ParameterEvent.deleted_names max_count:16
 openember.msgs.parameter.v1.ParameterEvent.deleted_names max_size:64
 
@@ -81,7 +81,7 @@ openember.msgs.log.v1.LogRecord.message max_size:256
 openember.msgs.log.v1.LogRecord.file max_size:128
 openember.msgs.log.v1.LogRecord.function_name max_size:64
 openember.msgs.log.v1.LogRecord.fields max_count:8
-openember.msgs.log.v1.LogBatch.records max_count:16
+openember.msgs.log.v1.LogBatch.records type:FT_CALLBACK
 
 openember.msgs.device.v1.DeviceInfo.device_id max_size:64
 openember.msgs.device.v1.DeviceInfo.name max_size:64
@@ -97,8 +97,8 @@ openember.msgs.device.v1.DeviceState.message max_size:160
 openember.msgs.device.v1.DeviceState.metrics max_count:16
 openember.msgs.device.v1.DeviceState.properties max_count:16
 openember.msgs.device.v1.DeviceQuery.device_id max_size:64
-openember.msgs.device.v1.DeviceQueryResponse.devices max_count:32
-openember.msgs.device.v1.DeviceQueryResponse.states max_count:32
+openember.msgs.device.v1.DeviceQueryResponse.devices type:FT_CALLBACK
+openember.msgs.device.v1.DeviceQueryResponse.states type:FT_CALLBACK
 
 openember.msgs.runtime.v1.ProcessSpec.name max_size:64
 openember.msgs.runtime.v1.ProcessSpec.executable max_size:160
@@ -109,3 +109,36 @@ openember.msgs.runtime.v1.ProcessSpec.working_directory max_size:160
 openember.msgs.runtime.v1.ProcessInfo.name max_size:64
 openember.msgs.runtime.v1.ProcessInfo.message max_size:160
 openember.msgs.runtime.v1.StopProcessRequest.name max_size:64
+
+openember.msgs.sensor.v1.ImuSample.sensor_id max_size:64
+openember.msgs.sensor.v1.ImuSample.frame_id max_size:64
+openember.msgs.sensor.v1.TemperatureSample.sensor_id max_size:64
+openember.msgs.sensor.v1.TemperatureSample.frame_id max_size:64
+openember.msgs.sensor.v1.GnssFix.sensor_id max_size:64
+openember.msgs.sensor.v1.GnssFix.frame_id max_size:64
+openember.msgs.sensor.v1.SensorStatus.sensor_id max_size:64
+openember.msgs.sensor.v1.SensorStatus.message max_size:160
+openember.msgs.sensor.v1.SensorStatus.metrics max_count:16
+
+openember.msgs.actuator.v1.JointCommandItem.joint_name max_size:64
+openember.msgs.actuator.v1.JointCommand.joints max_count:32
+openember.msgs.actuator.v1.JointCommand.controller_id max_size:64
+openember.msgs.actuator.v1.JointStateItem.joint_name max_size:64
+openember.msgs.actuator.v1.JointStateItem.fault_message max_size:128
+openember.msgs.actuator.v1.JointState.controller_id max_size:64
+openember.msgs.actuator.v1.JointState.joints max_count:32
+openember.msgs.actuator.v1.JointState.message max_size:160
+openember.msgs.actuator.v1.JointControllerStatus.controller_id max_size:64
+openember.msgs.actuator.v1.JointControllerStatus.message max_size:160
+openember.msgs.actuator.v1.JointControllerStatus.metrics max_count:16
+
+openember.msgs.power.v1.BatteryState.battery_id max_size:64
+openember.msgs.power.v1.PowerState.power_id max_size:64
+openember.msgs.power.v1.PowerState.message max_size:160
+openember.msgs.power.v1.PowerState.metrics max_count:16
+openember.msgs.power.v1.PowerCommand.power_id max_size:64
+openember.msgs.power.v1.PowerCommand.command max_size:64
+openember.msgs.power.v1.PowerCommand.parameters max_count:16
+
+openember.msgs.geometry.v1.Pose2D.frame_id max_size:64
+openember.msgs.geometry.v1.Twist2D.frame_id max_size:64

@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package openember.msgs.actuator.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/actuator/v1;actuatorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.actuator.v1";
+
+enum ActuatorAvailability {
+  ACTUATOR_AVAILABILITY_UNSPECIFIED = 0;
+  ACTUATOR_AVAILABILITY_OFFLINE = 1;
+  ACTUATOR_AVAILABILITY_DISABLED = 2;
+  ACTUATOR_AVAILABILITY_ENABLED = 3;
+  ACTUATOR_AVAILABILITY_DEGRADED = 4;
+  ACTUATOR_AVAILABILITY_FAULT = 5;
+  ACTUATOR_AVAILABILITY_EMERGENCY_STOP = 6;
+}
+
+enum JointControlMode {
+  JOINT_CONTROL_MODE_UNSPECIFIED = 0;
+  JOINT_CONTROL_MODE_DISABLED = 1;
+  JOINT_CONTROL_MODE_POSITION = 2;
+  JOINT_CONTROL_MODE_VELOCITY = 3;
+  JOINT_CONTROL_MODE_EFFORT = 4;
+  JOINT_CONTROL_MODE_MIT = 5;
+}
+
+message JointCommandItem {
+  uint32 joint_id = 1;
+  string joint_name = 2;
+  JointControlMode mode = 3;
+  bool position_enabled = 4;
+  double position_rad = 5;
+  bool velocity_enabled = 6;
+  double velocity_radps = 7;
+  bool effort_enabled = 8;
+  double effort_nm = 9;
+  bool stiffness_enabled = 10;
+  double stiffness_nm_per_rad = 11;
+  bool damping_enabled = 12;
+  double damping_nms_per_rad = 13;
+  double max_effort_nm = 14;
+}
+
+message JointCommand {
+  openember.msgs.common.v1.Header header = 1;
+  string controller_id = 2;
+  uint64 command_time_monotonic_ns = 3;
+  uint64 sequence = 4;
+  bool enable = 5;
+  bool disable = 6;
+  bool emergency_stop = 7;
+  bool clear_fault = 8;
+  repeated JointCommandItem joints = 9;
+}
+
+message JointStateItem {
+  uint32 joint_id = 1;
+  string joint_name = 2;
+  JointControlMode mode = 3;
+  double position_rad = 4;
+  double velocity_radps = 5;
+  double effort_nm = 6;
+  double temperature_celsius = 7;
+  bool feedback_received = 8;
+  uint32 fault_code = 9;
+  string fault_message = 10;
+}
+
+message JointState {
+  openember.msgs.common.v1.Header header = 1;
+  string controller_id = 2;
+  uint64 sample_time_monotonic_ns = 3;
+  uint64 sequence = 4;
+  ActuatorAvailability availability = 5;
+  repeated JointStateItem joints = 6;
+  string message = 7;
+}
+
+message JointControllerStatus {
+  openember.msgs.common.v1.Header header = 1;
+  string controller_id = 2;
+  ActuatorAvailability availability = 3;
+  openember.msgs.common.v1.HealthState health = 4;
+  string message = 5;
+  uint64 last_command_age_ms = 6;
+  uint64 command_timeout_ms = 7;
+  repeated openember.msgs.common.v1.Metric metrics = 8;
+}

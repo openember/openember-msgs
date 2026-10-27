@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package openember.msgs.power.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/power/v1;powerv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.power.v1";
+
+enum PowerAvailability {
+  POWER_AVAILABILITY_UNSPECIFIED = 0;
+  POWER_AVAILABILITY_OFFLINE = 1;
+  POWER_AVAILABILITY_ONLINE = 2;
+  POWER_AVAILABILITY_DEGRADED = 3;
+  POWER_AVAILABILITY_FAULT = 4;
+}
+
+message BatteryState {
+  openember.msgs.common.v1.Header header = 1;
+  string battery_id = 2;
+  uint64 sample_time_monotonic_ns = 3;
+  uint64 sequence = 4;
+  double voltage_v = 5;
+  double current_a = 6;
+  double temperature_celsius = 7;
+  double state_of_charge_percent = 8;
+  PowerAvailability availability = 9;
+}
+
+message PowerState {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  uint64 sample_time_monotonic_ns = 3;
+  uint64 sequence = 4;
+  PowerAvailability availability = 5;
+  string message = 6;
+  repeated openember.msgs.common.v1.Metric metrics = 7;
+}
+
+message PowerCommand {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  uint64 command_time_monotonic_ns = 3;
+  uint64 sequence = 4;
+  string command = 5;
+  repeated openember.msgs.common.v1.KeyValue parameters = 6;
+}

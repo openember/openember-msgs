@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package openember.msgs.geometry.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/geometry/v1;geometryv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.geometry.v1";
+
+// Planar pose in a fixed world frame (meters, radians).
+message Pose2D {
+  openember.msgs.common.v1.Header header = 1;
+  string frame_id = 2;
+  double x = 3;
+  double y = 4;
+  double theta = 5;
+}
+
+// Planar velocity command (m/s, rad/s).
+message Twist2D {
+  openember.msgs.common.v1.Header header = 1;
+  string frame_id = 2;
+  double linear_x = 3;
+  double angular_z = 4;
+}

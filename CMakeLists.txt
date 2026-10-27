@@ -15,6 +15,10 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/log/v1/log.proto"
     "openember/msgs/device/v1/device.proto"
     "openember/msgs/runtime/v1/runtime.proto"
+    "openember/msgs/sensor/v1/sensor.proto"
+    "openember/msgs/actuator/v1/actuator.proto"
+    "openember/msgs/power/v1/power.proto"
+    "openember/msgs/geometry/v1/geometry.proto"
 )
 
 set(OPENEMBER_MSGS_PROTO_ABS_FILES)
