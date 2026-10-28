@@ -70,3 +70,9 @@ message Metric {
   string unit = 3;
   repeated KeyValue labels = 4;
 }
+
+// Generic stamped boolean (e.g. e-stop engaged).
+message BoolStamped {
+  Header header = 1;
+  bool value = 2;
+}

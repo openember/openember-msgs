@@ -60,6 +60,18 @@ message TemperatureSample {
   double temperature_celsius = 6;
 }
 
+// Generic scalar reading for humidity, illuminance, soil moisture, CO2, etc.
+message ScalarSample {
+  openember.msgs.common.v1.Header header = 1;
+  string sensor_id = 2;
+  string frame_id = 3;
+  uint64 sample_time_monotonic_ns = 4;
+  uint64 sequence = 5;
+  string quantity = 6;
+  double value = 7;
+  string unit = 8;
+}
+
 message GnssFix {
   openember.msgs.common.v1.Header header = 1;
   string sensor_id = 2;
