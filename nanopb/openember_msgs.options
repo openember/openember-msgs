@@ -142,3 +142,9 @@ openember.msgs.power.v1.PowerCommand.parameters max_count:16
 
 openember.msgs.geometry.v1.Pose2D.frame_id max_size:64
 openember.msgs.geometry.v1.Twist2D.frame_id max_size:64
+
+openember.msgs.host.v1.CpuStats.core_usage_ratio max_count:128
+openember.msgs.host.v1.DiskUsage.mount_point max_size:128
+openember.msgs.host.v1.DiskUsage.filesystem max_size:64
+openember.msgs.host.v1.HostResourceSnapshot.disks max_count:16
+openember.msgs.host.v1.HostResourceSnapshot.metrics max_count:32

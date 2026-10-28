@@ -19,6 +19,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/actuator/v1/actuator.proto"
     "openember/msgs/power/v1/power.proto"
     "openember/msgs/geometry/v1/geometry.proto"
+    "openember/msgs/host/v1/host.proto"
 )
 
 set(OPENEMBER_MSGS_PROTO_ABS_FILES)

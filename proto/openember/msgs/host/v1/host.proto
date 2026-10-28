@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package openember.msgs.host.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/host/v1;hostv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.host.v1";
+
+// Overall and optional per-core CPU utilization (ratios in [0, 1]).
+message CpuStats {
+  double usage_ratio = 1;
+  uint32 online_cpus = 2;
+  repeated double core_usage_ratio = 3;
+}
+
+message MemoryStats {
+  uint64 total_bytes = 1;
+  uint64 available_bytes = 2;
+  uint64 used_bytes = 3;
+  uint64 swap_total_bytes = 4;
+  uint64 swap_used_bytes = 5;
+}
+
+message DiskUsage {
+  string mount_point = 1;
+  string filesystem = 2;
+  uint64 total_bytes = 3;
+  uint64 used_bytes = 4;
+  uint64 available_bytes = 5;
+}
+
+// Periodic host resource snapshot published by services/host_monitor.
+message HostResourceSnapshot {
+  openember.msgs.common.v1.Header header = 1;
+  double uptime_sec = 2;
+  double load1 = 3;
+  double load5 = 4;
+  double load15 = 5;
+  CpuStats cpu = 6;
+  MemoryStats memory = 7;
+  repeated DiskUsage disks = 8;
+  repeated openember.msgs.common.v1.Metric metrics = 9;
+}

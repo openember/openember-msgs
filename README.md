@@ -27,6 +27,7 @@ proto/openember/msgs/sensor/v1
 proto/openember/msgs/actuator/v1
 proto/openember/msgs/power/v1
 proto/openember/msgs/geometry/v1
+proto/openember/msgs/host/v1
 ```
 
 说明：
@@ -43,6 +44,7 @@ proto/openember/msgs/geometry/v1
 - `actuator/v1`：关节控制器命令、状态与执行器健康状态。
 - `power/v1`：电池、电源状态与电源控制命令。
 - `geometry/v1`：平面位姿与速度，例如 `Pose2D`、`Twist2D`（宿主机仿真 / teleop 示例）。
+- `host/v1`：主机资源快照，例如 CPU / 内存 / 磁盘占用（`HostResourceSnapshot`）。
 
 ## Zenoh Key 约定
 
