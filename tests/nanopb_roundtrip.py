@@ -10,7 +10,7 @@ def main():
     compiler = sys.argv[3]
     with tempfile.TemporaryDirectory(prefix="openember-imu-nanopb-") as directory:
         output = Path(directory)
-        protos = ["openember/msgs/common/v1/common", "openember/msgs/sensor/v1/sensor"]
+        protos = ["openember/msgs/common/v1/common", "openember/msgs/sensor/v1/sensor", "openember/msgs/power/v1/power"]
         subprocess.run([sys.executable, str(nanopb / "generator/nanopb_generator.py"),
                         "-I", str(source / "proto"), "-f", str(source / "nanopb/openember_msgs.options"),
                         "-D", str(output), *[str(source / "proto" / (proto + ".proto")) for proto in protos]],

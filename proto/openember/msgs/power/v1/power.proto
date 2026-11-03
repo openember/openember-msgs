@@ -27,6 +27,19 @@ message BatteryState {
   double temperature_celsius = 7;
   double state_of_charge_percent = 8;
   PowerAvailability availability = 9;
+  // Field validity is independent of receipt freshness. Old senders default to
+  // unknown/invalid; zero is a legitimate measurement, not a missing sentinel.
+  bool voltage_valid = 10;
+  bool current_valid = 11;
+  bool temperature_valid = 12;
+  bool state_of_charge_valid = 13;
+  bool connected_known = 14;
+  bool connected = 15;
+  // Host receipt, not downstream BMS sampling time. Compare monotonic values
+  // only within the advertised source clock/session domain.
+  uint64 receive_time_monotonic_ns = 16;
+  string clock_domain = 17;
+  bool receive_fresh = 18;
 }
 
 message PowerState {
@@ -37,6 +50,10 @@ message PowerState {
   PowerAvailability availability = 5;
   string message = 6;
   repeated openember.msgs.common.v1.Metric metrics = 7;
+  uint64 receive_time_monotonic_ns = 8;
+  string clock_domain = 9;
+  // Receipt freshness does not guarantee downstream measurement freshness.
+  bool receive_fresh = 10;
 }
 
 message PowerCommand {

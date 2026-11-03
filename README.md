@@ -115,4 +115,6 @@ python3 generator/nanopb_generator.py \
 IMU 新增姿态、逐通道有效性及接收时钟域，保持原字段 wire 兼容。
 迁移规则、Nanopb 上限和测试方法见 [IMU 契约](docs/imu-contract.md)。
 
+电源消息追加逐字段有效性、接入状态是否已知、接收时间与时钟域；见 [电源契约](docs/power-contract.md)。
+
 本仓库当前定义核心运行时消息，以及 Hardware Interface 第一版需要的传感器、执行器和电源基础消息。Camera、LiDAR、Radar、Audio、导航、视觉或 Agent payload 等高带宽/高层业务消息，应在运行时协议稳定后再作为独立 package 增加。

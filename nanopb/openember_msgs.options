@@ -136,6 +136,8 @@ openember.msgs.actuator.v1.JointControllerStatus.message max_size:160
 openember.msgs.actuator.v1.JointControllerStatus.metrics max_count:16
 
 openember.msgs.power.v1.BatteryState.battery_id max_size:64
+openember.msgs.power.v1.BatteryState.clock_domain max_size:128
+openember.msgs.power.v1.PowerState.clock_domain max_size:128
 openember.msgs.power.v1.PowerState.power_id max_size:64
 openember.msgs.power.v1.PowerState.message max_size:160
 openember.msgs.power.v1.PowerState.metrics max_count:16

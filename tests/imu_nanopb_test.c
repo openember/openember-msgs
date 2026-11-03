@@ -1,4 +1,5 @@
 #include "openember/msgs/sensor/v1/sensor.pb.h"
+#include "openember/msgs/power/v1/power.pb.h"
 #include <pb_encode.h>
 #include <pb_decode.h>
 #include <stdio.h>
@@ -29,6 +30,28 @@ int main(void) {
         !decoded.acceleration_valid || !decoded.angular_velocity_valid || decoded.magnetic_field_valid ||
         !decoded.temperature_valid || decoded.sequence != 42 || decoded.sample_time_monotonic_ns != 17 ||
         decoded.receive_time_monotonic_ns != 1000 || strcmp(decoded.clock_domain, sample.clock_domain) != 0) return 5;
-    puts("bounded Nanopb IMU roundtrip passed");
+    openember_msgs_power_v1_BatteryState battery = openember_msgs_power_v1_BatteryState_init_zero;
+    openember_msgs_power_v1_BatteryState result = openember_msgs_power_v1_BatteryState_init_zero;
+    if (battery.voltage_valid || battery.connected_known || battery.receive_fresh || sizeof(battery.clock_domain) != 128) return 6;
+    battery.current_a = -.5; battery.current_valid = true; battery.voltage_valid = true;
+    battery.receive_time_monotonic_ns = 42; battery.receive_fresh = true;
+    strcpy(battery.clock_domain, "power-session");
+    stream = pb_ostream_from_buffer(bytes, sizeof(bytes));
+    if (!pb_encode(&stream, openember_msgs_power_v1_BatteryState_fields, &battery)) return 7;
+    input = pb_istream_from_buffer(bytes, stream.bytes_written);
+    if (!pb_decode(&input, openember_msgs_power_v1_BatteryState_fields, &result)) return 8;
+    if (!result.current_valid || result.current_a != -.5 || !result.voltage_valid || result.voltage_v != 0 ||
+        result.connected_known || !result.receive_fresh || result.receive_time_monotonic_ns != 42 ||
+        strcmp(result.clock_domain, "power-session")) return 9;
+    openember_msgs_power_v1_PowerState power = openember_msgs_power_v1_PowerState_init_zero;
+    openember_msgs_power_v1_PowerState power_result = openember_msgs_power_v1_PowerState_init_zero;
+    if (sizeof(power.clock_domain) != 128 || power.receive_fresh) return 10;
+    strcpy(power.clock_domain, "power-session"); power.receive_time_monotonic_ns = 43; power.receive_fresh = true;
+    stream = pb_ostream_from_buffer(bytes, sizeof(bytes));
+    if (!pb_encode(&stream, openember_msgs_power_v1_PowerState_fields, &power)) return 11;
+    input = pb_istream_from_buffer(bytes, stream.bytes_written);
+    if (!pb_decode(&input, openember_msgs_power_v1_PowerState_fields, &power_result)) return 12;
+    if (!power_result.receive_fresh || power_result.receive_time_monotonic_ns != 43 || strcmp(power_result.clock_domain, "power-session")) return 13;
+    puts("bounded Nanopb IMU and power roundtrip passed");
     return 0;
 }
