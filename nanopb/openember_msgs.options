@@ -112,6 +112,9 @@ openember.msgs.runtime.v1.StopProcessRequest.name max_size:64
 
 openember.msgs.sensor.v1.ImuSample.sensor_id max_size:64
 openember.msgs.sensor.v1.ImuSample.frame_id max_size:64
+openember.msgs.sensor.v1.ImuSample.reference_frame_id max_size:64
+openember.msgs.sensor.v1.ImuSample.clock_domain max_size:128
+openember.msgs.sensor.v1.ImuSample.mounting_revision max_size:64
 openember.msgs.sensor.v1.TemperatureSample.sensor_id max_size:64
 openember.msgs.sensor.v1.TemperatureSample.frame_id max_size:64
 openember.msgs.sensor.v1.GnssFix.sensor_id max_size:64

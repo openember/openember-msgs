@@ -15,6 +15,14 @@ message Vector3 {
   double z = 3;
 }
 
+// Named components; never infer array order. Zero is NOT identity.
+message Quaternion {
+  double w = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+}
+
 enum SensorType {
   SENSOR_TYPE_UNSPECIFIED = 0;
   SENSOR_TYPE_IMU = 1;
@@ -49,6 +57,27 @@ message ImuSample {
   Vector3 angular_velocity_radps = 7;
   Vector3 magnetic_field_tesla = 8;
   double temperature_celsius = 9;
+  // Unit quaternion R_reference_sensor: v_reference = R(q) * v_sensor.
+  // Describes frame_id relative to reference_frame_id. No implicit ENU/NED or
+  // mounting transform. Consumers must validate finite components and norm.
+  Quaternion orientation = 10;
+  bool orientation_valid = 11;
+  string reference_frame_id = 12;
+  // Unique producer boot/acquisition session for receive_time_monotonic_ns.
+  // Restart/reconnect with sequence reset requires a NEW clock_domain.
+  string clock_domain = 13;
+  string mounting_revision = 14;
+  // Host receive time of the ORIGINAL sample, not publication/replay time.
+  // Compare only within clock_domain. Field 4 keeps its legacy meaning;
+  // device sample clocks must not be compared to this receive clock implicitly.
+  uint64 receive_time_monotonic_ns = 15;
+  // False means unavailable/invalid, including legacy messages lacking these
+  // fields. Numeric zero alone is never evidence of a valid measurement.
+  // A valid vector/orientation also requires its message to be present.
+  bool acceleration_valid = 16;
+  bool angular_velocity_valid = 17;
+  bool magnetic_field_valid = 18;
+  bool temperature_valid = 19;
 }
 
 message TemperatureSample {

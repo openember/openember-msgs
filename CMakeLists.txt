@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 project(openember_msgs VERSION 0.1.0 LANGUAGES CXX)
 
 option(OPENEMBER_MSGS_BUILD_CPP "Generate and build C++ protobuf bindings" OFF)
+option(OPENEMBER_MSGS_BUILD_TESTS "Build protocol compatibility tests" OFF)
+set(OPENEMBER_MSGS_NANOPB_ROOT "" CACHE PATH "Optional existing Nanopb source for C wire tests")
 
 set(OPENEMBER_MSGS_PROTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/proto")
 
@@ -34,6 +36,8 @@ target_include_directories(openember_msgs_proto INTERFACE
 )
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_PROTO_ROOT "${OPENEMBER_MSGS_PROTO_ROOT}")
 
 if(OPENEMBER_MSGS_BUILD_CPP)
     find_package(Protobuf REQUIRED)
@@ -77,12 +81,32 @@ if(OPENEMBER_MSGS_BUILD_CPP)
         ${OPENEMBER_MSGS_GENERATED_HDRS}
     )
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
 
     target_link_libraries(openember_msgs_cpp PUBLIC protobuf::libprotobuf)
     target_include_directories(openember_msgs_cpp PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>"
         "$<INSTALL_INTERFACE:include>"
     )
+endif()
+
+if(OPENEMBER_MSGS_BUILD_TESTS)
+    if(NOT OPENEMBER_MSGS_BUILD_CPP)
+        message(FATAL_ERROR "Protocol tests require OPENEMBER_MSGS_BUILD_CPP=ON")
+    endif()
+    enable_testing()
+    add_executable(imu_contract_test tests/imu_contract_test.cpp)
+    target_compile_features(imu_contract_test PRIVATE cxx_std_17)
+    target_link_libraries(imu_contract_test PRIVATE openember::msgs_cpp)
+    add_test(NAME imu_wire_compatibility COMMAND imu_contract_test)
+    if(OPENEMBER_MSGS_NANOPB_ROOT)
+        enable_language(C)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+        add_test(NAME imu_nanopb_roundtrip
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/nanopb_roundtrip.py"
+                "${OPENEMBER_MSGS_NANOPB_ROOT}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_C_COMPILER}")
+        set_tests_properties(imu_nanopb_roundtrip PROPERTIES TIMEOUT 30)
+    endif()
 endif()
 
 include(GNUInstallDirs)
