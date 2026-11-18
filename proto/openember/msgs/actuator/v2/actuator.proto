@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package openember.msgs.actuator.v2;
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/actuator/v2;actuatorv2";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.actuator.v2";
+
+// Normative validation and lifecycle rules: docs/actuator-control-contract.md.
+// These types MUST use separate v2 endpoints; never decode them as v1 commands.
+enum JointControlMode {
+  JOINT_CONTROL_MODE_UNSPECIFIED = 0;
+  JOINT_CONTROL_MODE_DISABLED = 1;
+  JOINT_CONTROL_MODE_POSITION = 2;
+  JOINT_CONTROL_MODE_VELOCITY = 3;
+  JOINT_CONTROL_MODE_EFFORT = 4;
+  JOINT_CONTROL_MODE_MIT = 5;
+}
+
+enum ControllerState {
+  CONTROLLER_STATE_UNSPECIFIED = 0;
+  CONTROLLER_STATE_DISARMED = 1;
+  CONTROLLER_STATE_ARMED = 2;
+  CONTROLLER_STATE_FAULT = 3;
+  CONTROLLER_STATE_EMERGENCY_STOP = 4;
+  CONTROLLER_STATE_STOPPED = 5;
+}
+
+message CommandContext {
+  string robot_id = 1;
+  string controller_id = 2;
+  string controller_session = 3;
+  string model_revision = 4;
+  string producer_session = 5;
+  uint64 sequence = 6;
+  // First implementation: same-host monotonic clock including host boot ID.
+  string clock_domain = 7;
+  uint64 issued_time_ns = 8;
+  uint64 expires_time_ns = 9;
+}
+
+message ControlLease {
+  uint64 generation = 1;
+  string token = 2;
+}
+
+message JointTarget {
+  string joint_name = 1;
+  JointControlMode mode = 2;
+  double position_rad = 3;
+  double velocity_radps = 4;
+  double effort_nm = 5;
+  double stiffness_nm_per_rad = 6;
+  double damping_nms_per_rad = 7;
+  double max_effort_nm = 8;
+}
+
+// Atomic full-topology update, in any order. No implicit enable or partial update.
+message JointCommand {
+  CommandContext context = 1;
+  ControlLease lease = 2;
+  repeated JointTarget joints = 3;
+}
+
+enum ControlOperation {
+  CONTROL_OPERATION_UNSPECIFIED = 0;
+  CONTROL_OPERATION_ACQUIRE = 1;
+  CONTROL_OPERATION_RENEW = 2;
+  CONTROL_OPERATION_RELEASE = 3;
+  CONTROL_OPERATION_ARM = 4;
+  CONTROL_OPERATION_DISARM = 5;
+  CONTROL_OPERATION_EMERGENCY_STOP = 6;
+  CONTROL_OPERATION_CLEAR_FAULT = 7;
+}
+
+message ControlRequest {
+  CommandContext context = 1;
+  string request_id = 2;
+  ControlOperation operation = 3;
+  ControlLease lease = 4;
+  uint64 requested_lease_duration_ns = 5;
+}
+
+enum ControlResultCode {
+  CONTROL_RESULT_CODE_UNSPECIFIED = 0;
+  CONTROL_RESULT_CODE_ACCEPTED = 1;
+  CONTROL_RESULT_CODE_COMPLETED = 2;
+  CONTROL_RESULT_CODE_REJECTED = 3;
+  CONTROL_RESULT_CODE_FAILED = 4;
+}
+
+enum RejectionReason {
+  REJECTION_REASON_UNSPECIFIED = 0;
+  REJECTION_REASON_INVALID_ARGUMENT = 1;
+  REJECTION_REASON_WRONG_CONTEXT = 2;
+  REJECTION_REASON_CLOCK_MISMATCH = 3;
+  REJECTION_REASON_EXPIRED = 4;
+  REJECTION_REASON_REPLAY = 5;
+  REJECTION_REASON_NOT_OWNER = 6;
+  REJECTION_REASON_BUSY = 7;
+  REJECTION_REASON_INVALID_STATE = 8;
+  REJECTION_REASON_TOPOLOGY_MISMATCH = 9;
+  REJECTION_REASON_UNSUPPORTED_MODE = 10;
+  REJECTION_REASON_LIMIT_VIOLATION = 11;
+  REJECTION_REASON_BACKEND_FAILURE = 12;
+}
+
+message ControlResult {
+  string robot_id = 1;
+  string controller_id = 2;
+  string controller_session = 3;
+  string producer_session = 4;
+  string request_id = 5;
+  uint64 request_sequence = 6;
+  ControlOperation operation = 7;
+  ControlResultCode code = 8;
+  RejectionReason reason = 9;
+  string message = 10;
+  ControlLease lease = 11;
+  uint64 lease_expires_time_ns = 12;
+  ControllerState state = 13;
+}
+
+message JointCapability {
+  string joint_name = 1;
+  bool continuous = 2;
+  double min_position_rad = 3;
+  double max_position_rad = 4;
+  double max_velocity_radps = 5;
+  double max_effort_nm = 6;
+  double max_stiffness_nm_per_rad = 7;
+  double max_damping_nms_per_rad = 8;
+  repeated JointControlMode supported_modes = 9;
+  uint64 max_feedback_age_ns = 10;
+}
+
+message ControllerCapabilities {
+  uint32 contract_version = 1;
+  string robot_id = 2;
+  string controller_id = 3;
+  string controller_session = 4;
+  string model_revision = 5;
+  string clock_domain = 6;
+  bool simulation = 7;
+  uint64 max_command_duration_ns = 8;
+  uint64 max_lease_duration_ns = 9;
+  uint64 command_timeout_ns = 10;
+  repeated JointCapability joints = 11;
+}
+
+// Validity is per physical sample, never inferred from publication time.
+message JointFeedback {
+  string joint_name = 1;
+  uint64 sample_sequence = 2;
+  uint64 receive_time_ns = 3;
+  bool receive_fresh = 4;
+  double position_rad = 5;
+  bool position_valid = 6;
+  double velocity_radps = 7;
+  bool velocity_valid = 8;
+  double effort_nm = 9;
+  bool effort_valid = 10;
+  double temperature_celsius = 11;
+  bool temperature_valid = 12;
+  double voltage_v = 13;
+  bool voltage_valid = 14;
+  uint32 fault_code = 15;
+  bool fault_valid = 16;
+}
+
+message ControllerFeedback {
+  string robot_id = 1;
+  string controller_id = 2;
+  string controller_session = 3;
+  string model_revision = 4;
+  string clock_domain = 5;
+  uint64 publish_time_ns = 6;
+  uint64 sequence = 7;
+  ControllerState state = 8;
+  uint64 owner_generation = 9;
+  string owner_producer_session = 10;
+  uint64 last_accepted_command_sequence = 11;
+  uint64 last_applied_command_sequence = 12;
+  uint64 last_accepted_command_time_ns = 13;
+  uint64 rejected_command_count = 14;
+  RejectionReason last_rejection_reason = 15;
+  repeated JointFeedback joints = 16;
+  bool simulation = 17;
+  bool paused = 18;
+  uint64 physics_step = 19;
+  uint64 simulation_time_ns = 20;
+  string message = 21;
+  bool backend_failure = 22;
+  RejectionReason fault_reason = 23;
+  uint64 lease_expires_time_ns = 24;
+}

@@ -19,6 +19,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/runtime/v1/runtime.proto"
     "openember/msgs/sensor/v1/sensor.proto"
     "openember/msgs/actuator/v1/actuator.proto"
+    "openember/msgs/actuator/v2/actuator.proto"
     "openember/msgs/power/v1/power.proto"
     "openember/msgs/geometry/v1/geometry.proto"
     "openember/msgs/host/v1/host.proto"
@@ -37,6 +38,7 @@ target_include_directories(openember_msgs_proto INTERFACE
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_PROTO_ROOT "${OPENEMBER_MSGS_PROTO_ROOT}")
 
 if(OPENEMBER_MSGS_BUILD_CPP)
@@ -83,6 +85,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTRACT_VERSION 1)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 
     target_link_libraries(openember_msgs_cpp PUBLIC protobuf::libprotobuf)
     target_include_directories(openember_msgs_cpp PUBLIC
@@ -104,6 +107,11 @@ if(OPENEMBER_MSGS_BUILD_TESTS)
     target_compile_features(power_contract_test PRIVATE cxx_std_17)
     target_link_libraries(power_contract_test PRIVATE openember::msgs_cpp)
     add_test(NAME power_wire_compatibility COMMAND power_contract_test)
+    add_executable(actuator_contract_test tests/actuator_contract_test.cpp)
+    target_compile_features(actuator_contract_test PRIVATE cxx_std_17)
+    target_link_libraries(actuator_contract_test PRIVATE openember::msgs_cpp)
+    add_test(NAME actuator_wire_contract COMMAND actuator_contract_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/nanopb/openember_msgs.options")
     if(OPENEMBER_MSGS_NANOPB_ROOT)
         enable_language(C)
         find_package(Python3 COMPONENTS Interpreter REQUIRED)

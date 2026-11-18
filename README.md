@@ -25,6 +25,7 @@ proto/openember/msgs/device/v1
 proto/openember/msgs/runtime/v1
 proto/openember/msgs/sensor/v1
 proto/openember/msgs/actuator/v1
+proto/openember/msgs/actuator/v2
 proto/openember/msgs/power/v1
 proto/openember/msgs/geometry/v1
 proto/openember/msgs/host/v1
@@ -42,6 +43,7 @@ proto/openember/msgs/host/v1
 - `runtime/v1`：面向 launch manager 的进程启动、停止与事件消息。
 - `sensor/v1`：IMU、温度、GNSS 等传感器样本与状态。
 - `actuator/v1`：关节控制器命令、状态与执行器健康状态。
+- `actuator/v2`：独立版本的关节目标、控制权管理、能力与逐关节反馈；见 [关节控制契约](docs/actuator-control-contract.md)。核心已有离线校验和 HI 会话适配，现有网络端点仍使用 v1。
 - `power/v1`：电池、电源状态与电源控制命令。
 - `geometry/v1`：平面位姿与速度，例如 `Pose2D`、`Twist2D`（宿主机仿真 / teleop 示例）。
 - `host/v1`：主机资源快照，例如 CPU / 内存 / 磁盘占用（`HostResourceSnapshot`）。
