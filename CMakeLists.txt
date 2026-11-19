@@ -21,6 +21,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/sensor/v1/sensor.proto"
     "openember/msgs/actuator/v1/actuator.proto"
     "openember/msgs/actuator/v2/actuator.proto"
+    "openember/msgs/motion/v1/motion.proto"
     "openember/msgs/power/v1/power.proto"
     "openember/msgs/geometry/v1/geometry.proto"
     "openember/msgs/host/v1/host.proto"
@@ -38,6 +39,7 @@ target_include_directories(openember_msgs_proto INTERFACE
 )
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
@@ -85,6 +87,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
         ${OPENEMBER_MSGS_GENERATED_HDRS}
     )
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTRACT_VERSION 1)
@@ -102,6 +105,11 @@ if(OPENEMBER_MSGS_BUILD_TESTS)
         message(FATAL_ERROR "Protocol tests require OPENEMBER_MSGS_BUILD_CPP=ON")
     endif()
     enable_testing()
+    add_executable(motion_contract_test tests/motion_contract_test.cpp)
+    target_compile_features(motion_contract_test PRIVATE cxx_std_17)
+    target_link_libraries(motion_contract_test PRIVATE openember::msgs_cpp)
+    add_test(NAME motion_wire_contract COMMAND motion_contract_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/nanopb/openember_msgs.options")
     add_executable(alerts_contract_test tests/alerts_contract_test.cpp)
     target_compile_features(alerts_contract_test PRIVATE cxx_std_17)
     target_link_libraries(alerts_contract_test PRIVATE openember::msgs_cpp)

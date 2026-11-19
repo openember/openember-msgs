@@ -1,0 +1,274 @@
+syntax = "proto3";
+
+package openember.msgs.motion.v1;
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/motion/v1;motionv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.motion.v1";
+
+// Normative semantics: docs/motion-control-contract.md. Ground robot intent,
+// independent of morphology, joint count, policy tensor and actuator transport.
+// Schema only: receivers MUST enforce the contract before refreshing watchdogs.
+enum MotionMode {
+  MOTION_MODE_UNSPECIFIED = 0;
+  MOTION_MODE_DISABLED = 1;
+  MOTION_MODE_PASSIVE = 2;
+  MOTION_MODE_HOLD = 3;
+  MOTION_MODE_LOCOMOTION = 4;
+  MOTION_MODE_ACTION = 5;
+  MOTION_MODE_WAITING_ASSISTANCE = 6;
+  MOTION_MODE_FAULT = 7;
+  MOTION_MODE_EMERGENCY_STOP = 8;
+  MOTION_MODE_STOPPED = 9;
+}
+
+enum Availability {
+  AVAILABILITY_UNSPECIFIED = 0;
+  AVAILABILITY_NOT_SUPPORTED = 1;
+  AVAILABILITY_UNAVAILABLE = 2;
+  AVAILABILITY_AVAILABLE = 3;
+}
+
+enum Readiness {
+  READINESS_UNSPECIFIED = 0;
+  READINESS_NOT_READY = 1;
+  READINESS_READY = 2;
+}
+
+// Enable acknowledgement; UNSPECIFIED/UNKNOWN never prove a safe disable or arm.
+enum ActuationState {
+  ACTUATION_STATE_UNSPECIFIED = 0;
+  ACTUATION_STATE_DISARMED = 1;
+  ACTUATION_STATE_ARMED = 2;
+  ACTUATION_STATE_UNKNOWN = 3;
+}
+
+enum ControlOperation {
+  CONTROL_OPERATION_UNSPECIFIED = 0;
+  CONTROL_OPERATION_ACQUIRE = 1;
+  CONTROL_OPERATION_RENEW = 2;
+  CONTROL_OPERATION_RELEASE = 3;
+  CONTROL_OPERATION_ARM = 4;
+  CONTROL_OPERATION_DISARM = 5;
+  CONTROL_OPERATION_EMERGENCY_STOP = 6;
+  CONTROL_OPERATION_CLEAR_FAULT = 7;
+}
+
+enum ResultStatus {
+  RESULT_STATUS_UNSPECIFIED = 0;
+  RESULT_STATUS_ACCEPTED = 1;
+  RESULT_STATUS_RUNNING = 2;
+  RESULT_STATUS_SUCCEEDED = 3;
+  RESULT_STATUS_REJECTED = 4;
+  RESULT_STATUS_FAILED = 5;
+  RESULT_STATUS_CANCELLED = 6;
+  RESULT_STATUS_TIMED_OUT = 7;
+}
+
+enum RejectionReason {
+  REJECTION_REASON_UNSPECIFIED = 0;
+  REJECTION_REASON_INVALID_ARGUMENT = 1;
+  REJECTION_REASON_WRONG_CONTEXT = 2;
+  REJECTION_REASON_CLOCK_MISMATCH = 3;
+  REJECTION_REASON_EXPIRED = 4;
+  REJECTION_REASON_REPLAY = 5;
+  REJECTION_REASON_NOT_OWNER = 6;
+  REJECTION_REASON_BUSY = 7;
+  REJECTION_REASON_INVALID_STATE = 8;
+  REJECTION_REASON_NOT_SUPPORTED = 9;
+  REJECTION_REASON_UNAVAILABLE = 10;
+  REJECTION_REASON_LIMIT_VIOLATION = 11;
+  REJECTION_REASON_INPUT_INVALID = 12;
+  REJECTION_REASON_BACKEND_FAILURE = 13;
+  REJECTION_REASON_TIMEOUT = 14;
+}
+
+enum CommandLossResponse {
+  COMMAND_LOSS_RESPONSE_UNSPECIFIED = 0;
+  COMMAND_LOSS_RESPONSE_STOP_AND_HOLD = 1;
+  COMMAND_LOSS_RESPONSE_DISARM = 2;
+}
+
+message CommandContext {
+  string robot_id = 1;
+  string motion_id = 2;
+  string motion_session = 3;
+  string model_revision = 4;
+  string configuration_revision = 5;
+  string source_id = 6;
+  string producer_session = 7;
+  uint64 sequence = 8;
+  // v1 online control: same-host monotonic clock including host boot ID.
+  string clock_domain = 9;
+  uint64 issued_time_ns = 10;
+  uint64 expires_time_ns = 11;
+}
+
+// Motion lease is distinct from the service's private actuator/v2 lease.
+message MotionLease {
+  uint64 generation = 1;
+  string token = 2;
+}
+
+// Complete intent in the advertised gravity-aligned body heading frame:
+// x forward, y left, z up, positive yaw counterclockwise viewed from above.
+message PlanarVelocity {
+  double vx_mps = 1;
+  double vy_mps = 2;
+  double yaw_rate_radps = 3;
+}
+
+// No mode changes, enable flags or implicit acquisition. Never send raw stick
+// values: product input scaling precedes this message, smoothing follows it.
+message MotionCommand {
+  CommandContext context = 1;
+  MotionLease lease = 2;
+  string frame_id = 3;
+  PlanarVelocity velocity = 4;
+  // Must match the current completed LOCOMOTION execution epoch.
+  uint64 mode_generation = 5;
+}
+
+message ControlIntent {
+  ControlOperation operation = 1;
+  uint64 requested_lease_duration_ns = 2;
+}
+
+// Only PASSIVE, HOLD and LOCOMOTION are client-settable, if advertised.
+message ModeIntent {
+  MotionMode mode = 1;
+}
+
+// No arbitrary parameter map or model path. Only advertised, versioned action IDs.
+message ActionIntent {
+  string action_id = 1;
+}
+
+message CancelIntent {
+  string target_request_id = 1;
+}
+
+// At most one intent; an unset/unknown intent MUST be rejected.
+message MotionRequest {
+  CommandContext context = 1;
+  MotionLease lease = 2;
+  string request_id = 3;
+  oneof intent {
+    ControlIntent control = 4;
+    ModeIntent mode = 5;
+    ActionIntent action = 6;
+    CancelIntent cancel = 7;
+  }
+}
+
+message MotionResult {
+  string robot_id = 1;
+  string motion_id = 2;
+  string motion_session = 3;
+  string source_id = 4;
+  string producer_session = 5;
+  string request_id = 6;
+  uint64 request_sequence = 7;
+  ResultStatus status = 8;
+  RejectionReason reason = 9;
+  string message = 10;
+  // Only successful ACQUIRE/RENEW replies carry a token; never broadcast them.
+  MotionLease lease = 11;
+  uint64 lease_expires_time_ns = 12;
+  MotionMode mode = 13;
+  ActuationState actuation_state = 14;
+  uint64 state_sequence = 15;
+  uint64 mode_generation = 16;
+}
+
+// All three limits must be present. Unsupported axis: supported=false,
+// minimum=maximum=0, command MUST be zero. Bounds describe physical SI intent.
+message AxisLimits {
+  bool supported = 1;
+  double minimum = 2;
+  double maximum = 3;
+}
+
+message PlanarVelocityLimits {
+  AxisLimits vx_mps = 1;
+  AxisLimits vy_mps = 2;
+  AxisLimits yaw_rate_radps = 3;
+}
+
+message ModeCapability {
+  MotionMode mode = 1;
+  Availability availability = 2;
+  RejectionReason reason = 3;
+  string message = 4;
+}
+
+message ActionCapability {
+  string action_id = 1;
+  Availability availability = 2;
+  RejectionReason reason = 3;
+  string message = 4;
+  uint64 max_duration_ns = 5;
+  // On success only: DISABLED, PASSIVE or HOLD, never automatic locomotion.
+  MotionMode completion_mode = 6;
+}
+
+message MotionCapabilities {
+  uint32 contract_version = 1;
+  string robot_id = 2;
+  string motion_id = 3;
+  string motion_session = 4;
+  string model_revision = 5;
+  string configuration_revision = 6;
+  string clock_domain = 7;
+  string body_heading_frame_id = 8;
+  bool simulation = 9;
+  uint64 max_command_duration_ns = 10;
+  uint64 max_lease_duration_ns = 11;
+  uint64 command_timeout_ns = 12;
+  CommandLossResponse command_loss_response = 13;
+  uint64 stop_timeout_ns = 14;
+  uint64 state_stale_after_ns = 15;
+  // Only the three settable modes; an absent capability is not supported.
+  repeated ModeCapability modes = 16;
+  repeated ActionCapability actions = 17;
+  PlanarVelocityLimits velocity_limits = 18;
+  uint64 sequence = 19;
+  uint64 publish_time_ns = 20;
+}
+
+// Status heartbeat, not measured odometry or actuator feedback. No lease token.
+message MotionState {
+  string robot_id = 1;
+  string motion_id = 2;
+  string motion_session = 3;
+  string model_revision = 4;
+  string configuration_revision = 5;
+  string clock_domain = 6;
+  uint64 sequence = 7;
+  uint64 publish_time_ns = 8;
+  bool online = 9;
+  MotionMode mode = 10;
+  ActuationState actuation_state = 11;
+  Readiness readiness = 12;
+  uint64 owner_generation = 13;
+  string owner_source_id = 14;
+  string owner_producer_session = 15;
+  uint64 lease_expires_time_ns = 16;
+  uint64 last_accepted_command_sequence = 17;
+  // Consumed by the motion loop, NOT proof of physical application by HAL.
+  uint64 last_consumed_command_sequence = 18;
+  uint64 last_accepted_command_time_ns = 19;
+  uint64 rejected_command_count = 20;
+  RejectionReason last_rejection_reason = 21;
+  string message = 22;
+  bool transition_in_progress = 23;
+  string active_request_id = 24;
+  string active_action_id = 25;
+  bool simulation = 26;
+  bool paused = 27;
+  uint64 physics_step = 28;
+  uint64 simulation_time_ns = 29;
+  uint64 mode_generation = 30;
+  RejectionReason fault_reason = 31;
+}

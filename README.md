@@ -122,3 +122,7 @@ IMU 新增姿态、逐通道有效性及接收时钟域，保持原字段 wire �
 本仓库当前定义核心运行时消息，以及 Hardware Interface 第一版需要的传感器、执行器和电源基础消息。Camera、LiDAR、Radar、Audio、导航、视觉或 Agent payload 等高带宽/高层业务消息，应在运行时协议稳定后再作为独立 package 增加。
 
 - [Alerts v1: structured events, full state and heartbeat](docs/alerts-contract.md)
+
+## 公共运动控制协议
+
+`motion/v1` 定义跨四足、人形、轮足与轮式机器人的高层平面速度、控制权、模式/动作请求、结果、状态及能力契约，具体支持项由能力声明决定。当前仅提供协议与 wire 测试，尚未注册运行时控制服务；六自由度和全身轨迹不在首版范围。见 [公共运动控制契约](docs/motion-control-contract.md)。
