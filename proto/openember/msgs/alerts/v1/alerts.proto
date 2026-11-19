@@ -1,0 +1,67 @@
+syntax = "proto3";
+package openember.msgs.alerts.v1;
+import "openember/msgs/common/v1/common.proto";
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/alerts/v1;alertsv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.alerts.v1";
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  SEVERITY_WARNING = 1;
+  SEVERITY_ERROR = 2;
+}
+enum Transition {
+  TRANSITION_UNSPECIFIED = 0;
+  TRANSITION_RAISED = 1;
+  TRANSITION_REMINDER = 2;
+  TRANSITION_CLEARED = 3;
+  TRANSITION_UNKNOWN = 4;
+}
+message AlertKey {
+  string source = 1;
+  string device = 2;
+  string session = 3;
+  string code = 4;
+}
+// Source sampling time is explicitly separate from Header wall clock time.
+message AlertObservation {
+  AlertKey key = 1;
+  Severity severity = 2;
+  Transition transition = 3;
+  uint64 sequence = 4;
+  uint64 sample_time_ns = 5;
+  string clock_domain = 6;
+  uint64 duration_ns = 7;
+  bool valid = 8;
+  double value = 9;
+  double threshold = 10;
+  double clear_threshold = 11;
+  string unit = 12;
+  string reference_frame = 13;
+  string context = 14;
+  string message = 15;
+}
+message AlertEvent {
+  openember.msgs.common.v1.Header header = 1;
+  // Unique per adapter lifetime; do not compare revisions across instances.
+  string publisher_instance = 2;
+  uint64 revision = 3;
+  AlertObservation observation = 4;
+}
+// Full replacement for this publisher_instance only, including an empty list.
+// REMINDER means still active; UNKNOWN never means healthy. No retained delivery.
+message AlertState {
+  openember.msgs.common.v1.Header header = 1;
+  string publisher_instance = 2;
+  uint64 revision = 3;
+  repeated AlertObservation observations = 4;
+  uint64 heartbeat_sequence = 5;
+  uint32 stale_after_ms = 6;
+  uint64 rejected_events = 7;
+  // Cumulative history overflow detections by this adapter, not subscriber loss.
+  uint64 history_gaps = 8;
+  uint64 publish_failures = 9;
+  // False on orderly adapter shutdown; expiration still handles abrupt exit.
+  bool online = 10;
+}

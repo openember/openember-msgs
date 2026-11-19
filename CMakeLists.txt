@@ -15,6 +15,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/diagnostics/v1/diagnostics.proto"
     "openember/msgs/parameter/v1/parameter.proto"
     "openember/msgs/log/v1/log.proto"
+    "openember/msgs/alerts/v1/alerts.proto"
     "openember/msgs/device/v1/device.proto"
     "openember/msgs/runtime/v1/runtime.proto"
     "openember/msgs/sensor/v1/sensor.proto"
@@ -37,6 +38,7 @@ target_include_directories(openember_msgs_proto INTERFACE
 )
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_PROTO_ROOT "${OPENEMBER_MSGS_PROTO_ROOT}")
@@ -83,6 +85,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
         ${OPENEMBER_MSGS_GENERATED_HDRS}
     )
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
@@ -99,6 +102,10 @@ if(OPENEMBER_MSGS_BUILD_TESTS)
         message(FATAL_ERROR "Protocol tests require OPENEMBER_MSGS_BUILD_CPP=ON")
     endif()
     enable_testing()
+    add_executable(alerts_contract_test tests/alerts_contract_test.cpp)
+    target_compile_features(alerts_contract_test PRIVATE cxx_std_17)
+    target_link_libraries(alerts_contract_test PRIVATE openember::msgs_cpp)
+    add_test(NAME alerts_wire_contract COMMAND alerts_contract_test)
     add_executable(imu_contract_test tests/imu_contract_test.cpp)
     target_compile_features(imu_contract_test PRIVATE cxx_std_17)
     target_link_libraries(imu_contract_test PRIVATE openember::msgs_cpp)

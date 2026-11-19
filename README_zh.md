@@ -111,3 +111,5 @@ python3 generator/nanopb_generator.py \
 ## IMU 契约补充
 
 公共 IMU 的姿态、有效性、接收时钟域及旧消息兼容规则见 [IMU 契约](docs/imu-contract.md)。
+
+- [Alerts v1: structured events, full state and heartbeat](docs/alerts-contract.md)
