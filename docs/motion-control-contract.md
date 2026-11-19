@@ -1,6 +1,6 @@
 # 公共运动控制契约 motion/v1
 
-状态：协议定义与 wire 测试基线。消息位于 `proto/openember/msgs/motion/v1/motion.proto`；尚未提供公共运动接收器、运行时验证器或 Link 服务，不改变现有四足仿真入口。本文中的“必须”是后续实现与验收要求，Protobuf 解码成功不代表已经通过这些检查。
+状态：协议定义与 wire 测试基线。消息位于 `proto/openember/msgs/motion/v1/motion.proto`；产品侧已提供运行时校验、统一 Controller 和本机 Link 开发版服务，见[产品实现](../../openember-quadruped/docs/motion-link-control.md)；本消息仓库不自动注册服务或授予设备权限。本文中的“必须”是后续实现与验收要求，Protobuf 解码成功不代表已经通过这些检查。
 
 ## 范围与不同机器人形态
 
@@ -115,7 +115,7 @@ contract_version 必须等于1；基本身份/参考系/修订字段非空，时
 
 ## 端点建议与后续验收
 
-建议命名为 `/robots/<robot_id>/motion/<motion_id>/command`（topic）、`request`（受控 service）、`results`（去除 token 的结果 topic）、`state` 和 `capabilities`（带心跳的 topic）。这些端点尚未注册，后续需验证 OpenEmber Link 命名解析、QoS、鉴权与请求关联后再落实；公共 topic 上的 source 或 namespace 不等于访问控制。速度采用最新完整意图，不能按积压 FIFO 回放；模式/动作请求和停止需要有界且有明确回执的执行路径。
+建议命名为 `/robots/<robot_id>/motion/<motion_id>/command`（topic）、`request`（受控 service）、`results`（去除 token 的结果 topic）、`state` 和 `capabilities`（带心跳的 topic）。产品当前采用逻辑 `/motion/base/*`，由 OpenEmber transport 加上 robot_id 前缀，实际 key 与认证加密封装见[实现说明](../../openember-quadruped/docs/motion-link-control.md)。上述 `/robots/<id>` 是建议逻辑形式，不要求在已有机器人路由前缀下重复嵌入；跨机器 QoS、通用鉴权仍待后续落实。公共 topic 上的 source 或 namespace 不等于访问控制。速度采用最新完整意图，不能按积压 FIFO 回放；模式/动作请求和停止需要有界且有明确回执的执行路径。
 
 本仓库验证生成、wire 字段/默认值、oneof 隔离、未知字段/枚举保留、不同形态能力表达和 Nanopb options 完整边界；不将这些测试当作运行时拒绝或真实运动的证据。后续先实现框架/产品适配器及 Mock 测试，再连接当前四足模式机和 MuJoCo：
 
