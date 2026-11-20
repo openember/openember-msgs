@@ -1,0 +1,47 @@
+syntax = "proto3";
+package openember.msgs.system.v1;
+import "openember/msgs/common/v1/common.proto";
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/system/v1;systemv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.system.v1";
+// Independent dimensions: a running device can also have warning health.
+enum LifecyclePhase {
+  LIFECYCLE_PHASE_UNSPECIFIED = 0;
+  LIFECYCLE_PHASE_INITIALIZING = 1;
+  LIFECYCLE_PHASE_STANDBY = 2;
+  LIFECYCLE_PHASE_RUNNING = 3;
+  LIFECYCLE_PHASE_SUSPENDED = 4;
+  LIFECYCLE_PHASE_RECOVERING = 5;
+  LIFECYCLE_PHASE_SHUTTING_DOWN = 6;
+}
+enum Health {
+  HEALTH_UNSPECIFIED = 0;
+  HEALTH_UNKNOWN = 1;
+  HEALTH_NORMAL = 2;
+  HEALTH_WARNING = 3;
+  HEALTH_DEGRADED = 4;
+  HEALTH_FAULT = 5;
+}
+enum ActuationState {
+  ACTUATION_STATE_UNSPECIFIED = 0;
+  ACTUATION_STATE_UNKNOWN = 1;
+  ACTUATION_STATE_DISARMED = 2;
+  ACTUATION_STATE_ARMED = 3;
+  ACTUATION_STATE_EMERGENCY_STOP = 4;
+}
+message SystemState {
+  openember.msgs.common.v1.Header header = 1;
+  // New on every manager process incarnation. Sequence is per incarnation.
+  string manager_session = 2;
+  LifecyclePhase phase = 3;
+  Health health = 4;
+  ActuationState actuation_state = 5;
+  uint32 active_alerts = 6;
+  uint32 unknown_alerts = 7;
+  repeated string unavailable_sources = 8;
+  bool online = 9;
+  uint32 stale_after_ms = 10;
+  // State aggregation does not assert that control authority has been granted.
+  string motion_session = 11;
+}
