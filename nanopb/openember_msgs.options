@@ -108,6 +108,11 @@ openember.msgs.runtime.v1.ProcessSpec.env max_count:16
 openember.msgs.runtime.v1.ProcessSpec.working_directory max_size:160
 openember.msgs.runtime.v1.ProcessInfo.name max_size:64
 openember.msgs.runtime.v1.ProcessInfo.message max_size:160
+openember.msgs.runtime.v1.ProcessInfo.depends_on max_count:16
+openember.msgs.runtime.v1.ProcessInfo.depends_on max_size:64
+openember.msgs.runtime.v1.ProcessInfo.restart_policy max_size:32
+openember.msgs.runtime.v1.ProcessStateSnapshot.manager_session max_size:128
+openember.msgs.runtime.v1.ProcessStateSnapshot.processes max_count:32
 openember.msgs.runtime.v1.StopProcessRequest.name max_size:64
 
 openember.msgs.sensor.v1.ImuSample.sensor_id max_size:64

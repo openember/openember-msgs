@@ -37,6 +37,16 @@ message ProcessInfo {
   uint64 start_time_unix_ns = 5;
   uint64 stop_time_unix_ns = 6;
   string message = 7;
+  bool ready = 8; // Interpreted using readiness_notify; otherwise only means spawned.
+  bool desired_running = 9;
+  repeated string depends_on = 10;
+  uint32 restart_count = 11; // Automatic restart attempts scheduled in this manager session.
+  string restart_policy = 12;
+  uint32 restart_limit = 13;
+  bool readiness_notify = 14;
+  uint64 heartbeat_timeout_ms = 15; // Zero disables heartbeat supervision.
+  bool heartbeat_received = 16;
+  uint64 heartbeat_age_ms = 17; // Meaningful only when heartbeat_received is true.
 }
 
 message StartProcessRequest {
@@ -66,4 +76,16 @@ message StopProcessResponse {
 message ProcessEvent {
   openember.msgs.common.v1.Header header = 1;
   ProcessInfo process = 2;
+}
+
+// Complete replacement snapshot, periodically published on /runtime/process/state.
+// Includes configured processes even when waiting for dependencies or already exited.
+// No command arguments or environment values are exposed.
+message ProcessStateSnapshot {
+  openember.msgs.common.v1.Header header = 1;
+  string manager_session = 2;
+  uint32 manager_process_id = 3;
+  bool online = 4;
+  uint32 stale_after_ms = 5;
+  repeated ProcessInfo processes = 6;
 }

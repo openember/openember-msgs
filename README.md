@@ -40,7 +40,7 @@ proto/openember/msgs/host/v1
 - `parameter/v1`：运行时参数读取、设置与事件通知。
 - `log/v1`：结构化日志记录。
 - `device/v1`：面向 LPIO 的设备信息与设备状态。
-- `runtime/v1`：面向 launch manager 的进程启动、停止与事件消息。
+- `runtime/v1`：面向 launch manager 的进程启动、停止、事件与完整状态快照消息。
 - `sensor/v1`：IMU、温度、GNSS 等传感器样本与状态。
 - `actuator/v1`：关节控制器命令、状态与执行器健康状态。
 - `actuator/v2`：独立版本的关节目标、控制权管理、能力与逐关节反馈；见 [关节控制契约](docs/actuator-control-contract.md)。核心已有离线校验和 HI 会话适配，现有网络端点仍使用 v1。
@@ -126,3 +126,9 @@ IMU 新增姿态、逐通道有效性及接收时钟域，保持原字段 wire �
 ## 公共运动控制协议
 
 `motion/v1` 定义跨四足、人形、轮足与轮式机器人的高层平面速度、控制权、模式/动作请求、结果、状态及能力契约，具体支持项由能力声明决定。当前仅提供协议与 wire 测试，尚未注册运行时控制服务；六自由度和全身轨迹不在首版范围。见 [公共运动控制契约](docs/motion-control-contract.md)。
+
+### 受管理进程快照
+
+`runtime/v1.ProcessStateSnapshot` 用于 `/runtime/process/state` 的完整替换快照，包含管理器会话、PID、在线标记、失效期限和全部受管理进程；配置中未启动或已退出的进程也保留。消费者按 manager_session 与 header.sequence 判断进展，使用本地时钟计算失效，来源过期后应将运行状态标记为未知。此列表与 `/nodes/query` 的逻辑节点注册信息不同；管理器自身 PID 单列，不计入 processes。
+
+`ProcessInfo` 的新增字段以追加编号保持原有消息兼容，覆盖就绪方式、期望运行状态、依赖、自动失败重试计数和心跳监督。restart_limit=0 表示不限次数，heartbeat_timeout_ms=0 表示未启用监督；只有 readiness_notify=true 的 ready 才表示应用就绪，其他模式仅确认进程创建。快照不包含进程参数和环境变量。Nanopb 静态配置最多容纳 32 个进程、每进程 16 个依赖；这是嵌入式解码容量，不限制主机端 C++ 的进程数量。
