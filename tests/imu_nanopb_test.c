@@ -6,6 +6,23 @@
 #include <string.h>
 
 int main(void) {
+    /* Explicit false in oneof remains a real command, distinct from absence. */
+    openember_msgs_power_v1_PowerControlRequest command = openember_msgs_power_v1_PowerControlRequest_init_zero;
+    openember_msgs_power_v1_PowerControlRequest command_copy = openember_msgs_power_v1_PowerControlRequest_init_zero;
+    pb_byte_t command_bytes[1024];
+    if (command.which_target != 0) return 20;
+    strcpy(command.power_id, "pmu"); strcpy(command.resource_id, "motor");
+    strcpy(command.service_session, "session"); strcpy(command.clock_domain, "host");
+    strcpy(command.request_id, "id"); command.deadline_monotonic_ns = 123;
+    command.which_target = openember_msgs_power_v1_PowerControlRequest_channel_enabled_tag;
+    command.target.channel_enabled = false;
+    pb_ostream_t command_output = pb_ostream_from_buffer(command_bytes, sizeof(command_bytes));
+    if (!pb_encode(&command_output, openember_msgs_power_v1_PowerControlRequest_fields, &command)) return 21;
+    pb_istream_t command_input = pb_istream_from_buffer(command_bytes, command_output.bytes_written);
+    if (!pb_decode(&command_input, openember_msgs_power_v1_PowerControlRequest_fields, &command_copy)) return 22;
+    if (command_copy.which_target != openember_msgs_power_v1_PowerControlRequest_channel_enabled_tag ||
+        command_copy.target.channel_enabled || command_copy.deadline_monotonic_ns != 123 ||
+        strcmp(command_copy.resource_id, "motor")) return 23;
     openember_msgs_sensor_v1_ImuSample sample = openember_msgs_sensor_v1_ImuSample_init_zero;
     openember_msgs_sensor_v1_ImuSample decoded = openember_msgs_sensor_v1_ImuSample_init_zero;
     if (sample.orientation_valid || sample.acceleration_valid || sample.angular_velocity_valid) return 1;

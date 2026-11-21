@@ -149,6 +149,25 @@ openember.msgs.power.v1.PowerState.metrics max_count:16
 openember.msgs.power.v1.PowerCommand.power_id max_size:64
 openember.msgs.power.v1.PowerCommand.command max_size:64
 openember.msgs.power.v1.PowerCommand.parameters max_count:16
+openember.msgs.power.v1.PowerResourceCapability.resource_id max_size:128
+openember.msgs.power.v1.PowerCapabilities.power_id max_size:128
+openember.msgs.power.v1.PowerCapabilities.service_session max_size:128
+openember.msgs.power.v1.PowerCapabilities.clock_domain max_size:128
+openember.msgs.power.v1.PowerCapabilities.resources max_count:64
+openember.msgs.power.v1.PowerCapabilities.battery_ids max_count:16
+openember.msgs.power.v1.PowerCapabilities.battery_ids max_size:128
+openember.msgs.power.v1.PowerResourceState.power_id max_size:128
+openember.msgs.power.v1.PowerResourceState.resource_id max_size:128
+openember.msgs.power.v1.PowerResourceState.clock_domain max_size:128
+openember.msgs.power.v1.PowerControlRequest.power_id max_size:128
+openember.msgs.power.v1.PowerControlRequest.service_session max_size:128
+openember.msgs.power.v1.PowerControlRequest.clock_domain max_size:128
+openember.msgs.power.v1.PowerControlRequest.request_id max_size:128
+openember.msgs.power.v1.PowerControlRequest.resource_id max_size:128
+openember.msgs.power.v1.PowerControlResult.power_id max_size:128
+openember.msgs.power.v1.PowerControlResult.service_session max_size:128
+openember.msgs.power.v1.PowerControlResult.request_id max_size:128
+openember.msgs.power.v1.PowerControlResult.message max_size:256
 
 openember.msgs.geometry.v1.Pose2D.frame_id max_size:64
 openember.msgs.geometry.v1.Twist2D.frame_id max_size:64

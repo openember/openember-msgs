@@ -64,3 +64,94 @@ message PowerCommand {
   string command = 5;
   repeated openember.msgs.common.v1.KeyValue parameters = 6;
 }
+
+// Typed control is separate from the legacy string PowerCommand envelope.
+enum PowerResourceKind {
+  POWER_RESOURCE_KIND_UNSPECIFIED = 0;
+  POWER_RESOURCE_KIND_CHANNEL = 1;
+  POWER_RESOURCE_KIND_FAN = 2;
+  POWER_RESOURCE_KIND_LIGHT = 3;
+}
+
+message PowerResourceCapability {
+  string resource_id = 1;
+  PowerResourceKind kind = 2;
+  bool writable = 3;
+  bool enable_requires_ready = 4;
+  // Fan/light levels are normalized [0,1]. False allows only off/on.
+  bool variable_level = 5;
+  // Normal shutdown may require coordination with actuator control.
+  bool disable_requires_ready = 6;
+}
+
+message PowerCapabilities {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  string service_session = 3;
+  string clock_domain = 4;
+  repeated PowerResourceCapability resources = 5;
+  repeated string battery_ids = 6;
+  // Session-wide executed request history. Exhaustion must reject new control.
+  uint32 request_capacity = 7;
+}
+
+message PowerResourceState {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  string resource_id = 3;
+  PowerResourceKind kind = 4;
+  uint64 sequence = 5;
+  uint64 sample_time_monotonic_ns = 6;
+  uint64 receive_time_monotonic_ns = 7;
+  string clock_domain = 8;
+  bool receive_fresh = 9;
+  double observed_level = 10;
+  bool observed_level_valid = 11;
+}
+
+message PowerControlRequest {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  string service_session = 3;
+  string clock_domain = 4;
+  string request_id = 5;
+  // Service monotonic clock domain, never a client's unrelated monotonic time.
+  uint64 deadline_monotonic_ns = 6;
+  string resource_id = 7;
+  oneof target {
+    bool channel_enabled = 8;
+    double fan_level = 9;
+    double light_level = 10;
+  }
+}
+
+enum PowerControlOutcome {
+  POWER_CONTROL_OUTCOME_UNSPECIFIED = 0;
+  POWER_CONTROL_OUTCOME_REJECTED = 1;
+  POWER_CONTROL_OUTCOME_ACCEPTED = 2;
+  POWER_CONTROL_OUTCOME_CONFIRMED = 3;
+  POWER_CONTROL_OUTCOME_UNKNOWN = 4;
+}
+
+enum PowerControlReason {
+  POWER_CONTROL_REASON_UNSPECIFIED = 0;
+  POWER_CONTROL_REASON_INVALID_REQUEST = 1;
+  POWER_CONTROL_REASON_UNAUTHORIZED = 2;
+  POWER_CONTROL_REASON_WRONG_SESSION = 3;
+  POWER_CONTROL_REASON_EXPIRED = 4;
+  POWER_CONTROL_REASON_UNSUPPORTED = 5;
+  POWER_CONTROL_REASON_NOT_READY = 6;
+  POWER_CONTROL_REASON_CONFLICT = 7;
+  POWER_CONTROL_REASON_BUSY = 8;
+  POWER_CONTROL_REASON_BACKEND_FAILURE = 9;
+}
+
+message PowerControlResult {
+  openember.msgs.common.v1.Header header = 1;
+  string power_id = 2;
+  string service_session = 3;
+  string request_id = 4;
+  PowerControlOutcome outcome = 5;
+  PowerControlReason reason = 6;
+  string message = 7;
+}

@@ -44,6 +44,7 @@ set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERS
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_POWER_CONTROL_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_PROTO_ROOT "${OPENEMBER_MSGS_PROTO_ROOT}")
 
@@ -94,6 +95,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTRACT_VERSION 1)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTROL_CONTRACT_VERSION 2)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 
     target_link_libraries(openember_msgs_cpp PUBLIC protobuf::libprotobuf)
