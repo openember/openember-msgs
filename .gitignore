@@ -8,3 +8,6 @@ gen/
 *.pb.go
 *.pyc
 __pycache__/
+
+# Local generated Kconfig selection.
+.config

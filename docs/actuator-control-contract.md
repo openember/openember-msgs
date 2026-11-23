@@ -60,11 +60,13 @@ DISARM/EMERGENCY_STOP/CLEAR_FAULT 仍要求有效上下文、期限及请求去�
 
 非 DISABLED 的 `0 < max_effort <= capability.max_effort`；effort 绝对值不超过本条 max_effort，velocity 绝对值不超过 max_velocity，Kp/Kd 非负且不超过能力。非连续关节的位置在闭区间限值内；连续轮轴不套用腿轴位置限位，MIT 位置误差采用连续展开坐标的直接差值，不隐式取最短角。速度、力矩和增益限值适用于连续轴。所有单位为 SI，名称和坐标由 model_revision 固定。
 
-语法/限值越界拒绝整条，正常 PD 求和造成的输出力矩则限幅到本条 max_effort 和后端硬限制的较小值。接收端必须分别记录 accepted 与 applied 序号，入队不等于实际写出。执行前再次校验期限、session、租约及状态，不能回放过期积压目标。只有完全合法的目标可刷新目标 watchdog，管理请求、心跳和被拒绝目标均不能刷新。
+语法/限值越界拒绝整条。MIT 的位置、速度、前馈力矩、Kp 和 Kd 可由后端直接送入电机内环；`max_effort` 是本条目标的力矩预算，是否具有设备侧总力矩限幅须检查关节能力 `hardware_effort_limit_supported`，不能仅凭 MIT 模式推断。接收端必须分别记录 accepted 与 applied 序号，入队不等于实际写出。执行前再次校验期限、session、租约及状态，不能回放过期积压目标。只有完全合法的目标可刷新目标 watchdog，管理请求、心跳和被拒绝目标均不能刷新。
 
 首次 ARM 后及运行中的有效目标失联阈值由 `command_timeout_ns` 给出。当前目标只能执行到目标 expires、租约 expires、watchdog 到期中的最早时刻；任一到期清除目标、禁用输出并锁存故障。具体电机停止动作由后端定义和验证，不能用零力矩报文等价替代硬件禁用。
 
 ## 能力与反馈
+
+`JointCapability.hardware_effort_limit_supported=true` 仅用于能够编码设备侧总力矩上限的后端；共享帧上限取该组最严格预算，并按协议分辨率向下取整，不能编码为有效非零上限的预算应拒绝。该字段缺省或为 false 时，不承诺设备侧总力矩硬限幅。例如 P65 MIT 报文没有独立 tmax 字段：后端在发送前以新鲜反馈估计 MIT 合力矩，超预算拒绝整组；运行时测得力矩超预算则停止输出。前馈限幅、发送前估计和反馈监测不能保证两个采样点之间电机内环的瞬时力矩不超预算，也不能等同于硬件限幅。需要硬件保证的调用者必须据能力拒绝不支持的后端。
 
 所有能力限值须有限且合法：duration/timeout/反馈最大年龄为正，min<=max，速度/力矩上限为正，增益上限非负，模式集合非空且无重复/未知项。关节名称唯一，1–32 项。能力在一个 session 内不可变，变化即新 session。首版 `contract_version` 必须等于 2。
 

@@ -133,6 +133,10 @@ message JointCapability {
   double max_damping_nms_per_rad = 8;
   repeated JointControlMode supported_modes = 9;
   uint64 max_feedback_age_ns = 10;
+  // True only when the backend can encode a device-side total-effort limit.
+  // False/absent means max_effort_nm is an admission/monitoring budget;
+  // it is not a hardware-enforced bound on MIT feedback torque.
+  bool hardware_effort_limit_supported = 11;
 }
 
 message ControllerCapabilities {
