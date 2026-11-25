@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package openember.msgs.sensor.v1;
+
+import "openember/msgs/sensor/v1/observation.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/sensor/v1;sensorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.sensor.v1";
+
+enum PointFieldType {
+  POINT_FIELD_TYPE_UNSPECIFIED = 0;
+  POINT_FIELD_TYPE_INT8 = 1;
+  POINT_FIELD_TYPE_UINT8 = 2;
+  POINT_FIELD_TYPE_INT16 = 3;
+  POINT_FIELD_TYPE_UINT16 = 4;
+  POINT_FIELD_TYPE_INT32 = 5;
+  POINT_FIELD_TYPE_UINT32 = 6;
+  POINT_FIELD_TYPE_FLOAT32 = 7;
+  POINT_FIELD_TYPE_FLOAT64 = 8;
+}
+
+message PointField {
+  string name = 1;
+  uint32 offset = 2;
+  PointFieldType datatype = 3;
+  uint32 count = 4;
+}
+
+// Shared by depth cameras and 3D LiDAR; positions x/y/z are metres in frame_id.
+message PointCloud {
+  ObservationMetadata metadata = 1;
+  uint32 height = 2; // 1 for unorganized clouds.
+  uint32 width = 3;
+  repeated PointField fields = 4;
+  bool is_bigendian = 5;
+  uint32 point_step = 6;
+  uint32 row_step = 7;
+  bytes data = 8; // Exactly height * row_step bytes, including row padding.
+  bool is_dense = 9; // True only if all points are finite; not a validity flag.
+  bool data_valid = 10;
+}

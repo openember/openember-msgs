@@ -28,6 +28,8 @@ enum SensorType {
   SENSOR_TYPE_IMU = 1;
   SENSOR_TYPE_TEMPERATURE = 2;
   SENSOR_TYPE_GNSS = 3;
+  SENSOR_TYPE_CAMERA = 4;
+  SENSOR_TYPE_LIDAR = 5;
 }
 
 enum SensorAvailability {
@@ -45,6 +47,19 @@ enum GnssFixType {
   GNSS_FIX_TYPE_FIX_3D = 3;
   GNSS_FIX_TYPE_RTK_FLOAT = 4;
   GNSS_FIX_TYPE_RTK_FIXED = 5;
+}
+
+enum AltitudeReference {
+  ALTITUDE_REFERENCE_UNSPECIFIED = 0;
+  ALTITUDE_REFERENCE_WGS84_ELLIPSOID = 1;
+  ALTITUDE_REFERENCE_MEAN_SEA_LEVEL = 2;
+}
+
+enum CovarianceType {
+  COVARIANCE_TYPE_UNSPECIFIED = 0;
+  COVARIANCE_TYPE_APPROXIMATED = 1;
+  COVARIANCE_TYPE_DIAGONAL = 2;
+  COVARIANCE_TYPE_FULL = 3;
 }
 
 message ImuSample {
@@ -115,6 +130,28 @@ message GnssFix {
   uint32 satellites_used = 11;
   double horizontal_accuracy_m = 12;
   double vertical_accuracy_m = 13;
+  // WGS84 latitude/longitude; frame_id identifies the antenna measurement point.
+  // No fix, unspecified fix, or false validity must not yield a usable position.
+  bool position_valid = 14;
+  bool altitude_valid = 15;
+  bool velocity_valid = 16;
+  bool satellites_used_valid = 17;
+  // When valid: horizontal sqrt(varE + varN), vertical sqrt(varU), in metres.
+  // Do not substitute HDOP, CEP or an unconverted confidence interval.
+  bool horizontal_accuracy_valid = 18;
+  bool vertical_accuracy_valid = 19;
+  // Legacy altitude_m has no implicit datum. Unknown is not ellipsoid height.
+  AltitudeReference altitude_reference = 20;
+  // Original host receive clock/session, as for ImuSample. Not replay time.
+  string clock_domain = 21;
+  uint64 receive_time_monotonic_ns = 22;
+  // Metres squared, ENU tangent plane, row-major 3x3. Empty when unknown.
+  repeated double position_covariance_m2 = 23;
+  CovarianceType position_covariance_type = 24;
+  // Domain for legacy field 4, independent of the host receive clock.
+  string sample_clock_domain = 25;
+  // Optional acquisition UTC; zero means unknown. Not header publication time.
+  uint64 sample_time_unix_ns = 26;
 }
 
 message SensorStatus {

@@ -21,6 +21,10 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/system/v1/system.proto"
     "openember/msgs/sensor/v1/sensor.proto"
     "openember/msgs/sensor/v1/imu.proto"
+    "openember/msgs/sensor/v1/observation.proto"
+    "openember/msgs/sensor/v1/camera.proto"
+    "openember/msgs/sensor/v1/point_cloud.proto"
+    "openember/msgs/sensor/v1/lidar.proto"
     "openember/msgs/actuator/v1/actuator.proto"
     "openember/msgs/actuator/v2/actuator.proto"
     "openember/msgs/motion/v1/motion.proto"
@@ -118,6 +122,10 @@ if(OPENEMBER_MSGS_BUILD_TESTS)
         message(FATAL_ERROR "Protocol tests require OPENEMBER_MSGS_BUILD_CPP=ON")
     endif()
     enable_testing()
+    add_executable(sensor_observation_contract_test tests/sensor_observation_contract_test.cpp)
+    target_compile_features(sensor_observation_contract_test PRIVATE cxx_std_17)
+    target_link_libraries(sensor_observation_contract_test PRIVATE openember::msgs_cpp)
+    add_test(NAME sensor_observation_wire_contract COMMAND sensor_observation_contract_test)
     add_executable(motion_contract_test tests/motion_contract_test.cpp)
     target_compile_features(motion_contract_test PRIVATE cxx_std_17)
     target_link_libraries(motion_contract_test PRIVATE openember::msgs_cpp)

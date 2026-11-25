@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package openember.msgs.sensor.v1;
+
+import "openember/msgs/sensor/v1/observation.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/sensor/v1;sensorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.sensor.v1";
+
+// Planar scan. First ray is metadata acquisition time, zero angle is +X and
+// positive angles rotate towards +Y about +Z. Use PointCloud for 3D observations.
+message LaserScan {
+  ObservationMetadata metadata = 1;
+  double angle_min_rad = 2;
+  double angle_max_rad = 3;
+  double angle_increment_rad = 4;
+  double time_increment_s = 5;
+  double scan_time_s = 6;
+  double range_min_m = 7;
+  double range_max_m = 8;
+  repeated float ranges_m = 9;
+  repeated float intensities = 10; // Empty or same count as ranges; device units.
+  bool data_valid = 11;
+}

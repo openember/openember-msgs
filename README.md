@@ -41,7 +41,7 @@ proto/openember/msgs/host/v1
 - `log/v1`：结构化日志记录。
 - `device/v1`：面向 LPIO 的设备信息与设备状态。
 - `runtime/v1`：面向 launch manager 的进程启动、停止、事件与完整状态快照消息。
-- `sensor/v1`：IMU、温度、GNSS 等传感器样本与状态。
+- `sensor/v1`：IMU、温度、GNSS，以及图像、标定、二维扫描和点云基础观测；见[传感器观测契约](docs/sensor-observation-contract.md)。
 - `actuator/v1`：关节控制器命令、状态与执行器健康状态。
 - `actuator/v2`：独立版本的关节目标、控制权管理、能力与逐关节反馈；见 [关节控制契约](docs/actuator-control-contract.md)。核心已有离线校验和 HI 会话适配，现有网络端点仍使用 v1。
 - `power/v1`：电池、电源状态与电源控制命令。
@@ -119,7 +119,7 @@ IMU 新增姿态、逐通道有效性及接收时钟域，保持原字段 wire �
 
 电源消息追加逐字段有效性、接入状态是否已知、接收时间与时钟域；见 [电源契约](docs/power-contract.md)。
 
-本仓库当前定义核心运行时消息，以及 Hardware Interface 第一版需要的传感器、执行器和电源基础消息。Camera、LiDAR、Radar、Audio、导航、视觉或 Agent payload 等高带宽/高层业务消息，应在运行时协议稳定后再作为独立 package 增加。
+本仓库定义核心运行时消息和传感器、执行器、电源基础消息。相机与 LiDAR 现有最小观测 schema，GNSS 保留旧 wire 布局并追加有效性、时间域及高度基准；本轮不包含驱动、视频传输或设备控制。Radar、Audio、导航、视觉推理和 Agent 等高层业务协议待明确需求后再增加。
 
 - [Alerts v1: structured events, full state and heartbeat](docs/alerts-contract.md)
 

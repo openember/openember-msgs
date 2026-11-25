@@ -1,4 +1,7 @@
 #include "openember/msgs/sensor/v1/sensor.pb.h"
+#include "openember/msgs/sensor/v1/camera.pb.h"
+#include "openember/msgs/sensor/v1/lidar.pb.h"
+#include "openember/msgs/sensor/v1/point_cloud.pb.h"
 #include "openember/msgs/power/v1/power.pb.h"
 #include <pb_encode.h>
 #include <pb_decode.h>
@@ -6,6 +9,10 @@
 #include <string.h>
 
 int main(void) {
+    /* These payloads must stay callbacks, not multi-megabyte static MCU buffers. */
+    _Static_assert(sizeof(((openember_msgs_sensor_v1_Image*)0)->data) == sizeof(pb_callback_t), "image payload callback");
+    _Static_assert(sizeof(((openember_msgs_sensor_v1_PointCloud*)0)->data) == sizeof(pb_callback_t), "cloud payload callback");
+    _Static_assert(sizeof(((openember_msgs_sensor_v1_LaserScan*)0)->ranges_m) == sizeof(pb_callback_t), "scan payload callback");
     /* Explicit false in oneof remains a real command, distinct from absence. */
     openember_msgs_power_v1_PowerControlRequest command = openember_msgs_power_v1_PowerControlRequest_init_zero;
     openember_msgs_power_v1_PowerControlRequest command_copy = openember_msgs_power_v1_PowerControlRequest_init_zero;
@@ -69,6 +76,25 @@ int main(void) {
     input = pb_istream_from_buffer(bytes, stream.bytes_written);
     if (!pb_decode(&input, openember_msgs_power_v1_PowerState_fields, &power_result)) return 12;
     if (!power_result.receive_fresh || power_result.receive_time_monotonic_ns != 43 || strcmp(power_result.clock_domain, "power-session")) return 13;
-    puts("bounded Nanopb IMU and power roundtrip passed");
+    openember_msgs_sensor_v1_GnssFix fix = openember_msgs_sensor_v1_GnssFix_init_zero;
+    openember_msgs_sensor_v1_GnssFix fix_copy = openember_msgs_sensor_v1_GnssFix_init_zero;
+    if (fix.position_valid || fix.altitude_valid || fix.velocity_valid ||
+        sizeof(fix.clock_domain) != 128 || sizeof(fix.sample_clock_domain) != 128 ||
+        sizeof(fix.position_covariance_m2) / sizeof(fix.position_covariance_m2[0]) != 9) return 24;
+    fix.fix_type = openember_msgs_sensor_v1_GnssFixType_GNSS_FIX_TYPE_FIX_3D;
+    fix.position_valid = true; /* (0,0) is a legal position when explicitly valid. */
+    fix.altitude_reference = openember_msgs_sensor_v1_AltitudeReference_ALTITUDE_REFERENCE_WGS84_ELLIPSOID;
+    fix.position_covariance_type = openember_msgs_sensor_v1_CovarianceType_COVARIANCE_TYPE_DIAGONAL;
+    fix.position_covariance_m2_count = 9;
+    fix.position_covariance_m2[0] = .01; fix.position_covariance_m2[4] = .01; fix.position_covariance_m2[8] = .04;
+    strcpy(fix.clock_domain, "gnss-host-session"); fix.receive_time_monotonic_ns = 42;
+    stream = pb_ostream_from_buffer(bytes, sizeof(bytes));
+    if (!pb_encode(&stream, openember_msgs_sensor_v1_GnssFix_fields, &fix)) return 25;
+    input = pb_istream_from_buffer(bytes, stream.bytes_written);
+    if (!pb_decode(&input, openember_msgs_sensor_v1_GnssFix_fields, &fix_copy)) return 26;
+    if (!fix_copy.position_valid || fix_copy.altitude_valid || fix_copy.latitude_deg != 0 ||
+        fix_copy.position_covariance_m2_count != 9 || fix_copy.position_covariance_m2[8] != .04 ||
+        strcmp(fix_copy.clock_domain, fix.clock_domain) || fix_copy.receive_time_monotonic_ns != 42) return 27;
+    puts("bounded Nanopb sensor and power roundtrip passed");
     return 0;
 }

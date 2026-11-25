@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package openember.msgs.sensor.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/sensor/v1;sensorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.sensor.v1";
+
+// Shared metadata for new image/scan/cloud observations. Existing IMU and GNSS
+// retain their wire layouts. No implicit transform or synchronization is provided.
+message ObservationMetadata {
+  openember.msgs.common.v1.Header header = 1;
+  // Same physical device identity as device.v1.DeviceInfo.device_id.
+  string sensor_id = 2;
+  // Stable stream within that device, e.g. color, depth, infrared_left, points.
+  string stream_id = 3;
+  string frame_id = 4;
+  uint64 sequence = 5;
+  // Original acquisition time. Compare only in sample_clock_domain.
+  uint64 sample_time_monotonic_ns = 6;
+  string sample_clock_domain = 7;
+  // Zero means acquisition UTC is unavailable; do not substitute publish time.
+  uint64 sample_time_unix_ns = 8;
+  // Original host receive time. Domain changes on producer restart or reconnect
+  // with sequence reset. Duplicate publication must retain these values.
+  uint64 receive_time_monotonic_ns = 9;
+  string clock_domain = 10;
+}

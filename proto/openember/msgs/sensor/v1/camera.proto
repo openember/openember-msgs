@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package openember.msgs.sensor.v1;
+
+import "openember/msgs/sensor/v1/observation.proto";
+
+option cc_enable_arenas = true;
+option go_package = "github.com/openember/openember-msgs/gen/go/openember/msgs/sensor/v1;sensorv1";
+option java_multiple_files = true;
+option java_package = "org.openember.msgs.sensor.v1";
+
+enum ImageContent {
+  IMAGE_CONTENT_UNSPECIFIED = 0;
+  IMAGE_CONTENT_COLOR = 1;
+  IMAGE_CONTENT_DEPTH = 2;
+  IMAGE_CONTENT_INFRARED = 3;
+  IMAGE_CONTENT_MONO = 4;
+}
+
+// Uncompressed pixels only. Optical frame: X right, Y down, Z forward.
+message Image {
+  ObservationMetadata metadata = 1;
+  uint32 width = 2;
+  uint32 height = 3;
+  // Initial encodings: rgb8, bgr8, rgba8, bgra8, mono8, mono16, 16UC1, 32FC1.
+  // Unknown encoding must be rejected, never guessed.
+  string encoding = 4;
+  bool is_bigendian = 5;
+  uint32 step = 6; // Bytes per row, including padding.
+  bytes data = 7; // Exactly height * step bytes; row 0 is the top row.
+  ImageContent content = 8;
+  // Required positive finite scale for DEPTH: metres = pixel * depth_unit_m.
+  // Depth is optical-axis Z, not radial distance. Other content uses zero.
+  double depth_unit_m = 9;
+  bool data_valid = 10;
+  string calibration_revision = 11; // Empty means no calibration association.
+}
+
+// Calibration for exact full-frame dimensions/stream. No implicit color/depth
+// alignment; extrinsics belong to the frame tree.
+message CameraInfo {
+  ObservationMetadata metadata = 1;
+  uint32 width = 2;
+  uint32 height = 3;
+  string distortion_model = 4;
+  repeated double d = 5;
+  repeated double k = 6; // Row-major intrinsic 3x3, exactly 9 entries when valid.
+  repeated double r = 7; // Row-major rectification 3x3, exactly 9 entries.
+  repeated double p = 8; // Row-major projection 3x4, exactly 12 entries.
+  bool calibration_valid = 9;
+  string calibration_revision = 10;
+}

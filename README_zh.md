@@ -105,6 +105,8 @@ python3 generator/nanopb_generator.py \
 
 ## 当前范围
 
+传感器新增相机图像/标定、二维扫描和共用点云观测；GNSS 在保留旧字段的基础上补充有效性、时间域、高度基准和协方差。详见[通用传感器观测契约](docs/sensor-observation-contract.md)。本轮只定义协议，不包含设备驱动、视频传输或控制接口。
+
 本仓库定义核心运行时及 Hardware Interface 使用的基础传感器、执行器、电源消息。
 视觉、导航或智能体等高层载荷应按需要作为独立包增加。
 

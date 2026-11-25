@@ -124,6 +124,30 @@ openember.msgs.sensor.v1.TemperatureSample.sensor_id max_size:64
 openember.msgs.sensor.v1.TemperatureSample.frame_id max_size:64
 openember.msgs.sensor.v1.GnssFix.sensor_id max_size:64
 openember.msgs.sensor.v1.GnssFix.frame_id max_size:64
+openember.msgs.sensor.v1.GnssFix.clock_domain max_size:128
+openember.msgs.sensor.v1.GnssFix.sample_clock_domain max_size:128
+openember.msgs.sensor.v1.GnssFix.position_covariance_m2 max_count:9
+
+# Perception payloads use callbacks, not giant static MCU arrays.
+openember.msgs.sensor.v1.ObservationMetadata.sensor_id max_size:64
+openember.msgs.sensor.v1.ObservationMetadata.stream_id max_size:64
+openember.msgs.sensor.v1.ObservationMetadata.frame_id max_size:64
+openember.msgs.sensor.v1.ObservationMetadata.sample_clock_domain max_size:128
+openember.msgs.sensor.v1.ObservationMetadata.clock_domain max_size:128
+openember.msgs.sensor.v1.Image.encoding max_size:32
+openember.msgs.sensor.v1.Image.data type:FT_CALLBACK
+openember.msgs.sensor.v1.Image.calibration_revision max_size:64
+openember.msgs.sensor.v1.CameraInfo.distortion_model max_size:64
+openember.msgs.sensor.v1.CameraInfo.d max_count:16
+openember.msgs.sensor.v1.CameraInfo.k max_count:9
+openember.msgs.sensor.v1.CameraInfo.r max_count:9
+openember.msgs.sensor.v1.CameraInfo.p max_count:12
+openember.msgs.sensor.v1.CameraInfo.calibration_revision max_size:64
+openember.msgs.sensor.v1.PointField.name max_size:32
+openember.msgs.sensor.v1.PointCloud.fields max_count:16
+openember.msgs.sensor.v1.PointCloud.data type:FT_CALLBACK
+openember.msgs.sensor.v1.LaserScan.ranges_m type:FT_CALLBACK
+openember.msgs.sensor.v1.LaserScan.intensities type:FT_CALLBACK
 openember.msgs.sensor.v1.SensorStatus.sensor_id max_size:64
 openember.msgs.sensor.v1.SensorStatus.message max_size:160
 openember.msgs.sensor.v1.SensorStatus.metrics max_count:16
