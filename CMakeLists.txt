@@ -20,6 +20,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/runtime/v1/runtime.proto"
     "openember/msgs/system/v1/system.proto"
     "openember/msgs/sensor/v1/sensor.proto"
+    "openember/msgs/sensor/v1/imu.proto"
     "openember/msgs/actuator/v1/actuator.proto"
     "openember/msgs/actuator/v2/actuator.proto"
     "openember/msgs/motion/v1/motion.proto"
@@ -44,6 +45,7 @@ set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERS
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_IMU_CONTROL_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_POWER_CONTROL_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_PROTO_ROOT "${OPENEMBER_MSGS_PROTO_ROOT}")
@@ -94,6 +96,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTRACT_VERSION 1)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_IMU_CONTROL_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_POWER_CONTROL_CONTRACT_VERSION 2)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ACTUATOR_CONTRACT_VERSION 2)

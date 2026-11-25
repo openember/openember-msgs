@@ -1,0 +1,94 @@
+syntax = "proto3";
+package openember.msgs.sensor.v1;
+import "openember/msgs/sensor/v1/sensor.proto";
+
+// Device-independent IMU management. All numeric measurements use SI units.
+enum ImuPersistence { IMU_PERSISTENCE_UNSPECIFIED = 0; IMU_PERSISTENCE_RAM = 1; IMU_PERSISTENCE_FLASH = 2; }
+enum ImuOperation {
+  IMU_OPERATION_UNSPECIFIED = 0;
+  IMU_OPERATION_STATE = 1;
+  IMU_OPERATION_ACQUIRE_USE = 2;
+  IMU_OPERATION_RENEW_USE = 3;
+  IMU_OPERATION_RELEASE_USE = 4;
+  IMU_OPERATION_ACQUIRE_MAINTENANCE = 5;
+  IMU_OPERATION_RELEASE_MAINTENANCE = 6;
+  IMU_OPERATION_READ_CONFIGURATION = 7;
+  IMU_OPERATION_APPLY_CONFIGURATION = 8;
+  IMU_OPERATION_CALIBRATE_STATIC_GYRO = 9;
+  IMU_OPERATION_PROBE_BAUD = 10;
+  IMU_OPERATION_RECONNECT = 11;
+  IMU_OPERATION_RESULT = 12;
+}
+message ImuCapabilities {
+  repeated double output_rates_hz = 1;
+  repeated uint32 baud_rates = 2;
+  // Bits: acceleration=1, gyro=2, quaternion=4, temperature=8,
+  // magnetic field=16, Euler angles=32, device time=64.
+  uint32 output_fields = 3;
+  repeated ImuPersistence persistence = 4;
+  bool configuration_access = 5;
+  bool static_gyro_calibration = 6;
+  string profile = 7;
+}
+message ImuConfiguration {
+  oneof output_rate_hz_presence { double output_rate_hz = 1; }
+  oneof baud_rate_presence { uint32 baud_rate = 2; }
+  oneof output_fields_presence { uint32 output_fields = 3; }
+  uint32 host_baud_rate = 4;
+  uint64 queried_at_monotonic_ns = 5;
+}
+message ImuConfigurationPatch {
+  oneof output_rate_hz_presence { double output_rate_hz = 1; }
+  oneof baud_rate_presence { uint32 baud_rate = 2; }
+  oneof output_fields_presence { uint32 output_fields = 3; }
+  ImuPersistence persistence = 4;
+}
+message ImuSettingResult {
+  string setting = 1;
+  // applied: ACK/current readback agree; flash durability is not independently
+  // verified. unconfirmed must not be displayed as success or auto-retried.
+  string state = 2;
+  string message = 3;
+}
+message ImuDeviceState {
+  string robot_id = 1;
+  string sensor_id = 2;
+  string service_session = 3;
+  string host_clock_domain = 4;
+  uint64 server_time_monotonic_ns = 5;
+  string source_node = 6;
+  string device_path = 7;
+  string model = 8;
+  uint32 deployment_baud_rate = 9;
+  ImuCapabilities capabilities = 10;
+  ImuConfiguration configuration = 11;
+  ImuSample sample = 12;
+  ImuSample raw_sample = 13;
+  bool receive_fresh = 14;
+  string maintenance_owner = 15;
+  uint32 users = 16;
+  string maintenance_blocked_reason = 17;
+  string error = 18;
+}
+// Authenticated transport must bind robot, sensor, caller, request/reply and
+// session. Commands are bounded, deduplicated and never implicitly retried.
+message ImuRequest {
+  string request_id = 1;
+  string service_session = 2;
+  ImuOperation operation = 3;
+  uint64 expires_time_monotonic_ns = 4;
+  string lease_token = 5;
+  ImuConfigurationPatch patch = 6;
+  ImuPersistence calibration_persistence = 7;
+}
+message ImuReply {
+  string request_id = 1;
+  bool accepted = 2;
+  string error = 3;
+  ImuDeviceState state = 4;
+  string lease_token = 5;
+  uint64 lease_expires_time_monotonic_ns = 6;
+  repeated ImuSettingResult settings = 7;
+  uint32 detected_baud_rate = 8;
+  bool pending = 9;
+}
