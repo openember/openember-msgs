@@ -132,3 +132,5 @@ IMU 新增姿态、逐通道有效性及接收时钟域，保持原字段 wire �
 `runtime/v1.ProcessStateSnapshot` 用于 `/runtime/process/state` 的完整替换快照，包含管理器会话、PID、在线标记、失效期限和全部受管理进程；配置中未启动或已退出的进程也保留。消费者按 manager_session 与 header.sequence 判断进展，使用本地时钟计算失效，来源过期后应将运行状态标记为未知。此列表与 `/nodes/query` 的逻辑节点注册信息不同；管理器自身 PID 单列，不计入 processes。
 
 `ProcessInfo` 的新增字段以追加编号保持原有消息兼容，覆盖就绪方式、期望运行状态、依赖、自动失败重试计数和心跳监督。restart_limit=0 表示不限次数，heartbeat_timeout_ms=0 表示未启用监督；只有 readiness_notify=true 的 ready 才表示应用就绪，其他模式仅确认进程创建。快照不包含进程参数和环境变量。Nanopb 静态配置最多容纳 32 个进程、每进程 16 个依赖；这是嵌入式解码容量，不限制主机端 C++ 的进程数量。
+
+网络只读快照 `/network/state` 的范围、有效性与边界见 [网络观测契约](docs/network-state-contract.md)。

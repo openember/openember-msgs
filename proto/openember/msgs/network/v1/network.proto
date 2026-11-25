@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package openember.msgs.network.v1;
+
+import "openember/msgs/common/v1/common.proto";
+
+option cc_enable_arenas = true;
+
+enum InterfaceKind {
+  INTERFACE_KIND_UNKNOWN = 0;
+  INTERFACE_KIND_ETHERNET = 1;
+  INTERFACE_KIND_WIFI = 2;
+  INTERFACE_KIND_LOOPBACK = 3;
+  INTERFACE_KIND_CAN = 4;
+  INTERFACE_KIND_OTHER = 5;
+}
+
+enum AddressFamily {
+  ADDRESS_FAMILY_UNKNOWN = 0;
+  ADDRESS_FAMILY_IPV4 = 1;
+  ADDRESS_FAMILY_IPV6 = 2;
+}
+
+message IpAddress {
+  AddressFamily family = 1;
+  string address = 2;
+  uint32 prefix_length = 3;
+  // Linux RT_SCOPE_* value. Link-local addresses do not imply LAN reachability.
+  uint32 scope = 4;
+  bool tentative = 5;
+  bool deprecated = 6;
+  bool duplicate_address = 7;
+}
+
+message InterfaceStatistics {
+  bool valid = 1;
+  // Kernel cumulative counters, not rates; can reset after interface recreation.
+  uint64 rx_bytes = 2;
+  uint64 tx_bytes = 3;
+  uint64 rx_packets = 4;
+  uint64 tx_packets = 5;
+  uint64 rx_errors = 6;
+  uint64 tx_errors = 7;
+  uint64 rx_dropped = 8;
+  uint64 tx_dropped = 9;
+}
+
+message NetworkInterface {
+  uint32 index = 1;
+  string name = 2;
+  InterfaceKind kind = 3;
+  bool admin_up = 4;
+  // Raw Linux operational state: unknown/down/lowerlayerdown/dormant/up/etc.
+  string operational_state = 5;
+  bool carrier_valid = 6;
+  bool carrier = 7;
+  uint32 mtu = 8;
+  string mac_address = 9;
+  // Kernel link kind, e.g. bridge, vlan, veth; empty when not reported.
+  string link_kind = 10;
+  repeated IpAddress addresses = 11;
+  InterfaceStatistics statistics = 12;
+  NetworkManagerDevice manager = 13;
+}
+
+// Complete interface replacement for one host in the service's network namespace.
+// Kernel facts and separately qualified NetworkManager metadata; no inferred Internet connectivity.
+message NetworkStateSnapshot {
+  openember.msgs.common.v1.Header header = 1;
+  string host_id = 2;
+  string boot_id = 3;
+  bool online = 4;
+  uint32 stale_after_ms = 5;
+  uint64 sample_time_monotonic_ns = 6;
+  bool interfaces_valid = 7;
+  bool addresses_valid = 8;
+  repeated NetworkInterface interfaces = 9;
+  string backend = 10;
+  // Optional local NetworkManager backend is enabled and metadata is fresh.
+  // Actual operations still require OS permissions.
+  bool configuration_supported = 11;
+  string diagnostic = 12;
+  bool manager_available = 13;
+  string manager_version = 14;
+  uint64 manager_sample_time_monotonic_ns = 15;
+  bool manager_fresh = 16;
+}
+
+// Saved profile metadata never contains passwords.
+message ConnectionProfile {
+  string uuid = 1; string name = 2; string type = 3; string ssid = 4;
+  bool autoconnect = 5; string ipv4_method = 6;
+  repeated string ipv4_addresses = 7; string gateway = 8; repeated string dns = 9;
+  string wifi_mode = 10; string security = 11;
+}
+message NetworkManagerDevice {
+  bool valid = 1; bool managed = 2; uint32 state = 3;
+  string active_uuid = 4; string active_name = 5; string role = 6;
+  string ssid = 7; bool supports_hotspot = 8;
+  repeated ConnectionProfile profiles = 9;
+}
+// Local management uses existing Web login and OS permissions, without control leases.
+// token is a private process credential; never publish/log requests or echo secrets.
+message NetworkRequest {
+  string request_id = 1;
+  string operation = 2; // status, result, ethernet, connect, disconnect, enable,
+                        // scan, autoconnect, hotspot, stop_hotspot, confirm
+  string service_instance = 3;
+  string host_id = 4;
+  string token = 5;
+  string interface_name = 6;
+  string profile_uuid = 7;
+  string ipv4_method = 8; // auto or manual
+  string ipv4_address = 9;
+  uint32 prefix_length = 10;
+  string gateway = 11;
+  repeated string dns = 12;
+  string ssid = 13;
+  string password = 14;
+  bool enabled = 15;
+  bool save = 16;
+  string management_address = 17; // HTTP local address, for checkpoint protection
+  string target_request_id = 18;
+  uint64 expires_time_monotonic_ns = 19;
+  string security = 20; // open, wpa-psk or sae
+}
+message WifiAccessPoint {
+  string ssid = 1;
+  string security = 2;
+  uint32 strength = 3;
+  uint32 frequency = 4;
+  uint32 access_point_count = 5;
+  bool supported = 6;
+}
+message NetworkReply {
+  string request_id = 1;
+  string service_instance = 2;
+  string host_id = 3;
+  string state = 4; // queued, running, complete, failed, awaiting_confirmation,
+                    // rolled_back, unknown, not_found
+  string message = 5;
+  bool available = 6;
+  repeated WifiAccessPoint access_points = 7;
+  string profile_uuid = 8;
+  uint32 confirmation_seconds = 9;
+  string reconnect_address = 10;
+}

@@ -272,3 +272,60 @@ openember.msgs.host.v1.HostInfo.os_name max_size:256
 openember.msgs.host.v1.HostInfo.os_version max_size:128
 openember.msgs.host.v1.HostInfo.online_cpu_list max_size:256
 openember.msgs.host.v1.HostInfo.isolated_cpu_list max_size:256
+
+# Read-only host network snapshots.
+openember.msgs.network.v1.NetworkStateSnapshot.host_id max_size:128
+openember.msgs.network.v1.NetworkStateSnapshot.boot_id max_size:128
+openember.msgs.network.v1.NetworkStateSnapshot.interfaces max_count:64
+openember.msgs.network.v1.NetworkStateSnapshot.backend max_size:128
+openember.msgs.network.v1.NetworkStateSnapshot.diagnostic max_size:513
+openember.msgs.network.v1.NetworkInterface.name max_size:16
+openember.msgs.network.v1.NetworkInterface.operational_state max_size:32
+openember.msgs.network.v1.NetworkInterface.mac_address max_size:96
+openember.msgs.network.v1.NetworkInterface.link_kind max_size:64
+openember.msgs.network.v1.NetworkInterface.addresses max_count:16
+openember.msgs.network.v1.IpAddress.address max_size:46
+
+# Optional NetworkManager metadata and bounded local management RPC.
+openember.msgs.network.v1.NetworkStateSnapshot.manager_version max_size:128
+openember.msgs.network.v1.ConnectionProfile.uuid max_size:37
+openember.msgs.network.v1.ConnectionProfile.name max_size:256
+openember.msgs.network.v1.ConnectionProfile.type max_size:64
+openember.msgs.network.v1.ConnectionProfile.ssid max_size:33
+openember.msgs.network.v1.ConnectionProfile.ipv4_method max_size:32
+openember.msgs.network.v1.ConnectionProfile.ipv4_addresses max_count:16 max_size:20
+openember.msgs.network.v1.ConnectionProfile.gateway max_size:16
+openember.msgs.network.v1.ConnectionProfile.dns max_count:8 max_size:16
+openember.msgs.network.v1.ConnectionProfile.wifi_mode max_size:32
+openember.msgs.network.v1.ConnectionProfile.security max_size:64
+openember.msgs.network.v1.NetworkManagerDevice.active_uuid max_size:37
+openember.msgs.network.v1.NetworkManagerDevice.active_name max_size:256
+openember.msgs.network.v1.NetworkManagerDevice.role max_size:16
+openember.msgs.network.v1.NetworkManagerDevice.ssid max_size:33
+openember.msgs.network.v1.NetworkManagerDevice.profiles max_count:16
+openember.msgs.network.v1.NetworkRequest.request_id max_size:64
+openember.msgs.network.v1.NetworkRequest.operation max_size:32
+openember.msgs.network.v1.NetworkRequest.service_instance max_size:128
+openember.msgs.network.v1.NetworkRequest.host_id max_size:128
+openember.msgs.network.v1.NetworkRequest.token max_size:65
+openember.msgs.network.v1.NetworkRequest.interface_name max_size:16
+openember.msgs.network.v1.NetworkRequest.profile_uuid max_size:37
+openember.msgs.network.v1.NetworkRequest.ipv4_method max_size:32
+openember.msgs.network.v1.NetworkRequest.ipv4_address max_size:16
+openember.msgs.network.v1.NetworkRequest.gateway max_size:16
+openember.msgs.network.v1.NetworkRequest.dns max_count:4 max_size:16
+openember.msgs.network.v1.NetworkRequest.ssid max_size:33
+openember.msgs.network.v1.NetworkRequest.password max_size:65
+openember.msgs.network.v1.NetworkRequest.management_address max_size:46
+openember.msgs.network.v1.NetworkRequest.target_request_id max_size:64
+openember.msgs.network.v1.NetworkRequest.security max_size:32
+openember.msgs.network.v1.WifiAccessPoint.ssid max_size:33
+openember.msgs.network.v1.WifiAccessPoint.security max_size:32
+openember.msgs.network.v1.NetworkReply.request_id max_size:64
+openember.msgs.network.v1.NetworkReply.service_instance max_size:128
+openember.msgs.network.v1.NetworkReply.host_id max_size:128
+openember.msgs.network.v1.NetworkReply.state max_size:32
+openember.msgs.network.v1.NetworkReply.message max_size:513
+openember.msgs.network.v1.NetworkReply.access_points max_count:64
+openember.msgs.network.v1.NetworkReply.profile_uuid max_size:37
+openember.msgs.network.v1.NetworkReply.reconnect_address max_size:46

@@ -27,6 +27,7 @@ set(OPENEMBER_MSGS_PROTO_FILES
     "openember/msgs/power/v1/power.proto"
     "openember/msgs/geometry/v1/geometry.proto"
     "openember/msgs/host/v1/host.proto"
+    "openember/msgs/network/v1/network.proto"
 )
 
 set(OPENEMBER_MSGS_PROTO_ABS_FILES)
@@ -41,6 +42,7 @@ target_include_directories(openember_msgs_proto INTERFACE
 )
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_NETWORK_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_HOST_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
@@ -93,6 +95,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
         ${OPENEMBER_MSGS_GENERATED_HDRS}
     )
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_NETWORK_CONTRACT_VERSION 2)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_HOST_CONTRACT_VERSION 2)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
