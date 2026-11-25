@@ -257,3 +257,18 @@ openember.msgs.motion.v1.MotionState.owner_producer_session max_size:64
 openember.msgs.motion.v1.MotionState.message max_size:160
 openember.msgs.motion.v1.MotionState.active_request_id max_size:64
 openember.msgs.motion.v1.MotionState.active_action_id max_size:64
+
+# Host resource validity and metadata extensions.
+openember.msgs.host.v1.CpuStats.core_ids max_count:128
+openember.msgs.host.v1.CpuStats.core_usage_valid max_count:128
+openember.msgs.host.v1.HostResourceSnapshot.host_id max_size:128
+openember.msgs.host.v1.HostResourceSnapshot.boot_id max_size:128
+openember.msgs.host.v1.HostResourceSnapshot.timezone max_size:128
+openember.msgs.host.v1.HostResourceSnapshot.device_local_time max_size:128
+openember.msgs.host.v1.HostInfo.hostname max_size:128
+openember.msgs.host.v1.HostInfo.architecture max_size:64
+openember.msgs.host.v1.HostInfo.kernel_release max_size:128
+openember.msgs.host.v1.HostInfo.os_name max_size:256
+openember.msgs.host.v1.HostInfo.os_version max_size:128
+openember.msgs.host.v1.HostInfo.online_cpu_list max_size:256
+openember.msgs.host.v1.HostInfo.isolated_cpu_list max_size:256

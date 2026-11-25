@@ -41,6 +41,7 @@ target_include_directories(openember_msgs_proto INTERFACE
 )
 
 add_library(openember::msgs_proto ALIAS openember_msgs_proto)
+set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_HOST_CONTRACT_VERSION 2)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
 set_property(TARGET openember_msgs_proto PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)
@@ -92,6 +93,7 @@ if(OPENEMBER_MSGS_BUILD_CPP)
         ${OPENEMBER_MSGS_GENERATED_HDRS}
     )
     add_library(openember::msgs_cpp ALIAS openember_msgs_cpp)
+    set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_HOST_CONTRACT_VERSION 2)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_SYSTEM_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_MOTION_CONTRACT_VERSION 1)
     set_property(TARGET openember_msgs_cpp PROPERTY OPENEMBER_ALERTS_CONTRACT_VERSION 1)

@@ -14,6 +14,10 @@ message CpuStats {
   double usage_ratio = 1;
   uint32 online_cpus = 2;
   repeated double core_usage_ratio = 3;
+  bool usage_valid = 4;
+  // Parallel arrays; IDs can be sparse after CPU hotplug/offlining.
+  repeated uint32 core_ids = 5;
+  repeated bool core_usage_valid = 6;
 }
 
 message MemoryStats {
@@ -22,6 +26,9 @@ message MemoryStats {
   uint64 used_bytes = 3;
   uint64 swap_total_bytes = 4;
   uint64 swap_used_bytes = 5;
+  bool valid = 6;
+  bool available_estimated = 7;
+  bool swap_valid = 8;
 }
 
 message DiskUsage {
@@ -30,6 +37,19 @@ message DiskUsage {
   uint64 total_bytes = 3;
   uint64 used_bytes = 4;
   uint64 available_bytes = 5;
+}
+
+message HostInfo {
+  string hostname = 1;
+  string architecture = 2;
+  string kernel_release = 3;
+  string os_name = 4;
+  string os_version = 5;
+  string online_cpu_list = 6;
+  string isolated_cpu_list = 7;
+  bool kernel_valid = 8;
+  bool os_valid = 9;
+  bool cpu_lists_valid = 10;
 }
 
 // Periodic host resource snapshot published by services/host_monitor.
@@ -43,4 +63,20 @@ message HostResourceSnapshot {
   MemoryStats memory = 7;
   repeated DiskUsage disks = 8;
   repeated openember.msgs.common.v1.Metric metrics = 9;
+  // New readers require these lifecycle/validity fields. Old payloads are unknown.
+  string host_id = 10;
+  string boot_id = 11;
+  bool online = 12;
+  uint32 stale_after_ms = 13;
+  uint64 sample_time_monotonic_ns = 14;
+  uint32 cpu_window_ms = 15;
+  bool uptime_valid = 16;
+  bool load_valid = 17;
+  uint64 device_time_unix_ns = 18;
+  string timezone = 19;
+  // Local representation at sampling time, including UTC offset (not browser time).
+  string device_local_time = 20;
+  HostInfo info = 21;
+  bool disks_sampled = 22;
+  bool disks_valid = 23;
 }
